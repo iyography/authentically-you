@@ -1400,9 +1400,9 @@ function PowerMapContent() {
         </div>
       </main>
 
-      {/* Left side toggles - centered vertically */}
-      <div className="fixed left-6 top-1/2 -translate-y-1/2 z-50">
-        <div className="bg-[#0A0A0A]/90 backdrop-blur-md border border-[#FAF6E3]/20 rounded-2xl p-2 flex flex-col gap-1">
+      {/* View toggles - bottom horizontal on mobile, left vertical on desktop */}
+      <div className="fixed z-50 bottom-20 left-1/2 -translate-x-1/2 md:bottom-auto md:left-6 md:top-1/2 md:-translate-y-1/2 md:translate-x-0">
+        <div className="bg-[#0A0A0A]/90 backdrop-blur-md border border-[#FAF6E3]/20 rounded-2xl p-2 flex flex-row md:flex-col gap-1">
           {visualizations.map((viz) => {
             const Icon = viz.icon;
             const isActive = activeViz.id === viz.id;
@@ -1411,16 +1411,15 @@ function PowerMapContent() {
               <motion.button
                 key={viz.id}
                 onClick={() => setActiveViz(viz)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                className={`flex items-center justify-center md:justify-start gap-2 md:gap-3 px-3 md:px-4 py-2 md:py-3 rounded-xl transition-all ${
                   isActive
                     ? "bg-[#D4A853] text-[#0A0A0A]"
                     : "text-[#FAF6E3]/70 hover:bg-[#FAF6E3]/10 hover:text-[#FAF6E3]"
                 }`}
-                whileHover={{ x: isActive ? 0 : 4 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <Icon className="w-4 h-4" />
-                <span className="font-sans text-sm font-medium">{viz.name}</span>
+                <span className="hidden md:inline font-sans text-sm font-medium">{viz.name}</span>
               </motion.button>
             );
           })}
