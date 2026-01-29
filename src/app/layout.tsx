@@ -68,6 +68,7 @@ export default function RootLayout({
     <html lang="en" className="scroll-smooth">
       <body
         className={`${parisienne.variable} ${cormorant.variable} ${spaceGrotesk.variable} ${inter.variable} antialiased`}
+        suppressHydrationWarning
       >
         {children}
       </body>

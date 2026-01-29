@@ -15,10 +15,8 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        isScrolled
-          ? "bg-black/80 backdrop-blur-md py-4"
-          : "bg-transparent py-6"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-black/80 backdrop-blur-md ${
+        isScrolled ? "py-4" : "py-6"
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
@@ -55,19 +53,29 @@ export default function Navbar() {
             >
               For You
             </a>
+            <a
+              href="/power-map"
+              className="font-sans text-sm text-white/70 hover:text-white transition-colors"
+            >
+              Power Map
+            </a>
           </div>
 
-          {/* CTA */}
-          <a
-            href="https://www.skool.com/Recess/about"
-            className={`font-sans text-xs tracking-widest uppercase px-6 py-2 border transition-all duration-300 ${
-              isScrolled
-                ? "border-white/30 text-white hover:bg-white hover:text-black"
-                : "border-white/30 text-white hover:bg-white hover:text-black"
-            }`}
-          >
-            Join Recess
-          </a>
+          {/* CTA Buttons */}
+          <div className="flex items-center gap-3">
+            <a
+              href="/affiliates"
+              className="font-sans text-xs tracking-widest uppercase px-6 py-2 bg-[#9EB1C7] text-[#0A0A0A] hover:bg-[#b8c9d9] transition-all duration-300 rounded-sm"
+            >
+              Affiliates
+            </a>
+            <a
+              href="https://www.skool.com/Recess/about"
+              className="font-sans text-xs tracking-widest uppercase px-6 py-2 bg-[#D4A853] text-[#0A0A0A] hover:bg-[#c49943] transition-all duration-300 rounded-sm"
+            >
+              Join Recess
+            </a>
+          </div>
         </div>
       </div>
     </nav>
