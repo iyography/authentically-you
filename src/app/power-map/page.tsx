@@ -17,69 +17,74 @@ import {
   X,
 } from "lucide-react";
 
-// Video background
-const VIDEO_URL = "/rvids/28.mp4";
+// Pre-generated particle positions for performance
+const PARTICLES = Array.from({ length: 40 }, (_, i) => ({
+  id: i,
+  left: `${(i * 2.5) % 100}%`,
+  delay: `${(i * 0.4) % 12}s`,
+  size: `${1 + (i % 3)}px`,
+}));
 
-function getPosterFromVideo(videoUrl: string): string {
-  // For Cloudinary URLs, generate poster; for local videos, return empty
-  if (videoUrl.includes("cloudinary")) {
-    return videoUrl
-      .replace("/video/upload/q_auto,f_auto/", "/video/upload/so_0,f_jpg,q_auto/")
-      .replace(".mp4", ".jpg");
-  }
-  return "";
+const SPARKLES_DATA = Array.from({ length: 12 }, (_, i) => ({
+  id: i,
+  left: `${(i * 8.3) % 100}%`,
+  top: `${(i * 10.7) % 100}%`,
+  delay: `${(i * 0.3) % 2}s`,
+}));
+
+// Floating particles - pure CSS animation
+function FloatingParticles() {
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-[1]">
+      {PARTICLES.map((particle) => (
+        <div
+          key={particle.id}
+          className="particle"
+          style={{
+            left: particle.left,
+            bottom: "-10px",
+            animationDelay: particle.delay,
+            width: particle.size,
+            height: particle.size,
+          }}
+        />
+      ))}
+      {SPARKLES_DATA.map((sparkle) => (
+        <div
+          key={`sparkle-${sparkle.id}`}
+          className="sparkle"
+          style={{
+            left: sparkle.left,
+            top: sparkle.top,
+            animationDelay: sparkle.delay,
+          }}
+        />
+      ))}
+    </div>
+  );
 }
 
-function BackgroundVideo({ src }: { src: string }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const posterUrl = getPosterFromVideo(src);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-    video.muted = true;
-    const handlePlaying = () => setIsPlaying(true);
-    video.addEventListener("playing", handlePlaying);
-    const playVideo = () => {
-      if (video.paused) video.play().catch(() => {});
-    };
-    video.addEventListener("loadedmetadata", playVideo);
-    video.addEventListener("canplay", playVideo);
-    playVideo();
-    const observer = new IntersectionObserver(
-      (entries) => entries.forEach((entry) => entry.isIntersecting && playVideo()),
-      { threshold: 0.1 }
-    );
-    observer.observe(video);
-    const handleInteraction = () => playVideo();
-    document.addEventListener("touchstart", handleInteraction, { once: true, passive: true });
-    document.addEventListener("click", handleInteraction, { once: true });
-    return () => {
-      observer.disconnect();
-      video.removeEventListener("playing", handlePlaying);
-    };
-  }, []);
-
+// Aurora background with flowing lights
+function AuroraBackground() {
   return (
-    <div
-      className="fixed inset-0 w-full h-full z-0"
-      style={{ backgroundImage: `url(${posterUrl})`, backgroundSize: "cover", backgroundPosition: "center" }}
-    >
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        controls={false}
-        className={`w-full h-full object-cover transition-opacity duration-300 ${isPlaying ? "opacity-100" : "opacity-0"}`}
-      >
-        <source src={src} type="video/mp4" />
-      </video>
-      <div className="absolute inset-0 bg-[#0A0A0A]/85" />
-    </div>
+    <>
+      <div className="aurora-bg" />
+      <div className="aurora-layer fixed inset-0 z-0" />
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div
+          className="floating-light w-[500px] h-[500px] bg-[#C5B4E3]/15"
+          style={{ top: "5%", left: "-5%", animation: "auroraWave1 40s ease-in-out infinite" }}
+        />
+        <div
+          className="floating-light w-[400px] h-[400px] bg-[#B4D4E3]/12"
+          style={{ top: "50%", right: "-10%", animation: "auroraWave2 35s ease-in-out infinite" }}
+        />
+        <div
+          className="floating-light w-[450px] h-[450px] bg-[#E3B4D4]/10"
+          style={{ bottom: "10%", left: "20%", animation: "auroraWave3 45s ease-in-out infinite" }}
+        />
+      </div>
+    </>
   );
 }
 
@@ -134,12 +139,12 @@ const familyMembers: FamilyMember[] = [
 
 // Skill categories for organizing
 const skillCategories = [
-  { name: "Marketing", keywords: ["marketing", "seo", "traffic", "visibility", "promotion", "content", "funnel", "viral"], color: "#D4A853" },
-  { name: "Systems", keywords: ["systems", "automation", "workflow", "operations", "organizing", "roadmap", "planning"], color: "#9EB1C7" },
-  { name: "Mindset", keywords: ["mindset", "wellbeing", "fulfillment", "anxiety", "inner", "self-awareness", "empathy", "patience"], color: "#8B2332" },
-  { name: "Creative", keywords: ["storytelling", "comedy", "humor", "creative", "imagination", "writing", "poetry", "films"], color: "#6B8E6B" },
-  { name: "Community", keywords: ["community", "skool", "members", "connecting", "relationships", "collaboration", "networking"], color: "#9B6B9B" },
-  { name: "Tech", keywords: ["ai", "chatgpt", "n8n", "coding", "web development", "automation", "tech"], color: "#5B8DBD" },
+  { name: "Marketing", keywords: ["marketing", "seo", "traffic", "visibility", "promotion", "content", "funnel", "viral"], color: "#C9A86C" },
+  { name: "Systems", keywords: ["systems", "automation", "workflow", "operations", "organizing", "roadmap", "planning"], color: "#B4D4E3" },
+  { name: "Mindset", keywords: ["mindset", "wellbeing", "fulfillment", "anxiety", "inner", "self-awareness", "empathy", "patience"], color: "#E8C4C4" },
+  { name: "Creative", keywords: ["storytelling", "comedy", "humor", "creative", "imagination", "writing", "poetry", "films"], color: "#B4D4B4" },
+  { name: "Community", keywords: ["community", "skool", "members", "connecting", "relationships", "collaboration", "networking"], color: "#C5B4E3" },
+  { name: "Tech", keywords: ["ai", "chatgpt", "n8n", "coding", "web development", "automation", "tech"], color: "#B4C5E3" },
 ];
 
 // Find matches between members
@@ -1363,21 +1368,23 @@ function PowerMapContent() {
 
   return (
     <>
-      <BackgroundVideo src={VIDEO_URL} />
+      {/* Aurora Background & Floating Elements */}
+      <AuroraBackground />
+      <FloatingParticles />
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#FAF6E3]/10 bg-[#0A0A0A]/80 backdrop-blur-md">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#3D3D3D]/10 bg-[#FFF8F0]/80 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="font-script text-3xl">
-            Recess
+          <Link href="/" className="font-script text-3xl text-[#3D3D3D]">
+            Authentically You
           </Link>
           <a
-            href="https://www.skool.com/recess/about"
+            href="https://www.skool.com/authenticallyou/about"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-[#D4A853] text-[#0A0A0A] px-6 py-2 rounded-full font-sans font-semibold hover:bg-[#c49943] transition-colors"
+            className="bg-[#C9A86C] text-white px-6 py-2 rounded-full font-sans font-semibold hover:bg-[#b8975b] transition-colors"
           >
-            Join Recess
+            Join Free
           </a>
         </div>
       </header>
@@ -1427,9 +1434,9 @@ function PowerMapContent() {
       </div>
 
       {/* Footer */}
-      <footer className="fixed bottom-0 left-0 right-0 z-40 py-4 px-6 bg-gradient-to-t from-[#0A0A0A] to-transparent pointer-events-none">
+      <footer className="fixed bottom-0 left-0 right-0 z-40 py-4 px-6 bg-gradient-to-t from-[#FFF8F0] to-transparent pointer-events-none">
         <div className="max-w-6xl mx-auto flex justify-end">
-          <span className="font-sans text-xs text-[#FAF6E3]/30 pointer-events-auto"><a href="/admin" className="hover:text-[#FAF6E3]/50 transition-colors">&copy;</a> 2026 Recess. All rights reserved.</span>
+          <span className="font-sans text-xs text-[#6B6B6B]/50 pointer-events-auto">&copy; 2026 Authentically You. All rights reserved.</span>
         </div>
       </footer>
     </>
@@ -1438,8 +1445,8 @@ function PowerMapContent() {
 
 export default function PowerMap() {
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#FAF6E3] relative">
-      <Suspense fallback={<div className="min-h-screen bg-[#0A0A0A]" />}>
+    <div className="min-h-screen calm-gradient-radial text-[#3D3D3D] relative">
+      <Suspense fallback={<div className="min-h-screen bg-[#FFF8F0]" />}>
         <PowerMapContent />
       </Suspense>
     </div>

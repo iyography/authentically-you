@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -15,65 +16,57 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 bg-black/80 backdrop-blur-md ${
-        isScrolled ? "py-4" : "py-6"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        isScrolled
+          ? "py-4 bg-[#FFF8F0]/90 backdrop-blur-md shadow-sm"
+          : "py-6 bg-transparent"
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-12">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <a
-            href="#"
-            onClick={(e) => {
-              e.preventDefault();
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            }}
-            className="font-script text-2xl md:text-3xl text-white hover:opacity-80 transition-all duration-300"
+          <Link
+            href="/"
+            className="font-script text-2xl md:text-3xl text-[#3D3D3D] hover:opacity-80 transition-all duration-300"
           >
-            Recess
-          </a>
+            Authentically You
+          </Link>
 
           {/* Nav Links */}
           <div className="hidden md:flex items-center gap-8">
             <a
-              href="#why"
-              className="font-sans text-sm text-white/70 hover:text-white transition-colors"
+              href="#about"
+              className="font-sans text-sm text-[#6B6B6B] hover:text-[#3D3D3D] transition-colors"
             >
-              What Is Recess?
+              About
             </a>
             <a
               href="#features"
-              className="font-sans text-sm text-white/70 hover:text-white transition-colors"
+              className="font-sans text-sm text-[#6B6B6B] hover:text-[#3D3D3D] transition-colors"
             >
-              Features
+              What You Get
             </a>
             <a
               href="#for-you"
-              className="font-sans text-sm text-white/70 hover:text-white transition-colors"
+              className="font-sans text-sm text-[#6B6B6B] hover:text-[#3D3D3D] transition-colors"
             >
               For You
             </a>
-            <a
-              href="/power-map"
-              className="font-sans text-sm text-white/70 hover:text-white transition-colors"
+            <Link
+              href="/quiz"
+              className="font-sans text-sm text-[#6B6B6B] hover:text-[#3D3D3D] transition-colors"
             >
-              Power Map
-            </a>
+              Take the Quiz
+            </Link>
           </div>
 
-          {/* CTA Buttons */}
+          {/* CTA Button */}
           <div className="flex items-center gap-3">
             <a
-              href="/affiliates"
-              className="font-sans text-xs tracking-widest uppercase px-6 py-2 bg-[#9EB1C7] text-[#0A0A0A] hover:bg-[#b8c9d9] transition-all duration-300 rounded-sm"
+              href="https://www.skool.com/authenticallyou/about"
+              className="font-sans text-xs tracking-widest uppercase px-6 py-2 bg-[#C9A86C] text-white hover:bg-[#b8975b] transition-all duration-300 rounded-full"
             >
-              Affiliates
-            </a>
-            <a
-              href="https://www.skool.com/Recess/about"
-              className="font-sans text-xs tracking-widest uppercase px-6 py-2 bg-[#D4A853] text-[#0A0A0A] hover:bg-[#c49943] transition-all duration-300 rounded-sm"
-            >
-              Join Recess
+              Join Free
             </a>
           </div>
         </div>

@@ -43,7 +43,20 @@ next-env.d.ts
 # Large video files
 videos/
 public/videos/*.mp4
+*.mp4
 
 # Large video files
 rvids/
 public/videos/
+.env*.local
+
+# Misc project files
+*.docx
+*.pdf
+meeting.json
+recess.code-workspace
+supabase-setup.sql
+logo.jpg
+marie.jpg
+online.png
+untitled folder/

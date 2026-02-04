@@ -1,85 +1,78 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Search, Sparkles } from "lucide-react";
 
-// Main hero video background
-const VIDEO_URL = "https://res.cloudinary.com/dzlnqcmqn/video/upload/q_auto,f_auto/v1769038060/18_u4hwoe.mp4";
+// Pre-generated particle positions for performance
+const PARTICLES = Array.from({ length: 50 }, (_, i) => ({
+  id: i,
+  left: `${(i * 2.1) % 100}%`,
+  delay: `${(i * 0.4) % 12}s`,
+  size: `${1 + (i % 3)}px`,
+}));
 
-// Generate poster image URL from Cloudinary video URL
-function getPosterFromVideo(videoUrl: string): string {
-  return videoUrl
-    .replace("/video/upload/q_auto,f_auto/", "/video/upload/so_0,f_jpg,q_auto/")
-    .replace(".mp4", ".jpg");
+const SPARKLES_DATA = Array.from({ length: 15 }, (_, i) => ({
+  id: i,
+  left: `${(i * 7.3) % 100}%`,
+  top: `${(i * 11.7) % 100}%`,
+  delay: `${(i * 0.3) % 2}s`,
+}));
+
+// Floating particles - pure CSS animation
+function FloatingParticles() {
+  return (
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-[1]">
+      {PARTICLES.map((particle) => (
+        <div
+          key={particle.id}
+          className="particle"
+          style={{
+            left: particle.left,
+            bottom: "-10px",
+            animationDelay: particle.delay,
+            width: particle.size,
+            height: particle.size,
+          }}
+        />
+      ))}
+      {SPARKLES_DATA.map((sparkle) => (
+        <div
+          key={`sparkle-${sparkle.id}`}
+          className="sparkle"
+          style={{
+            left: sparkle.left,
+            top: sparkle.top,
+            animationDelay: sparkle.delay,
+          }}
+        />
+      ))}
+    </div>
+  );
 }
 
-function BackgroundVideo({ src }: { src: string }) {
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const posterUrl = getPosterFromVideo(src);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    video.muted = true;
-
-    const handlePlaying = () => setIsPlaying(true);
-    video.addEventListener("playing", handlePlaying);
-
-    const playVideo = () => {
-      if (video.paused) {
-        video.play().catch(() => {});
-      }
-    };
-
-    video.addEventListener("loadedmetadata", playVideo);
-    video.addEventListener("canplay", playVideo);
-    playVideo();
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) playVideo();
-        });
-      },
-      { threshold: 0.1 }
-    );
-    observer.observe(video);
-
-    const handleInteraction = () => playVideo();
-    document.addEventListener("touchstart", handleInteraction, { once: true, passive: true });
-    document.addEventListener("click", handleInteraction, { once: true });
-    document.addEventListener("scroll", handleInteraction, { once: true, passive: true });
-
-    return () => {
-      observer.disconnect();
-      video.removeEventListener("playing", handlePlaying);
-    };
-  }, []);
-
+// Aurora background with flowing lights
+function AuroraBackground() {
   return (
-    <div
-      className="fixed inset-0 w-full h-full z-0"
-      style={{ backgroundImage: `url(${posterUrl})`, backgroundSize: "cover", backgroundPosition: "center" }}
-    >
-      <video
-        ref={videoRef}
-        autoPlay
-        muted
-        loop
-        playsInline
-        preload="auto"
-        controls={false}
-        className={`w-full h-full object-cover transition-opacity duration-300 ${isPlaying ? "opacity-100" : "opacity-0"}`}
-      >
-        <source src={src} type="video/mp4" />
-      </video>
-      {/* Dark overlay for readability */}
-      <div className="absolute inset-0 bg-[#0A0A0A]/80" />
-    </div>
+    <>
+      <div className="aurora-bg" />
+      <div className="aurora-layer fixed inset-0 z-0" />
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        <div
+          className="floating-light w-[500px] h-[500px] bg-[#C5B4E3]/15"
+          style={{ top: "5%", left: "-5%", animation: "auroraWave1 40s ease-in-out infinite" }}
+        />
+        <div
+          className="floating-light w-[400px] h-[400px] bg-[#B4D4E3]/12"
+          style={{ top: "50%", right: "-10%", animation: "auroraWave2 35s ease-in-out infinite" }}
+        />
+        <div
+          className="floating-light w-[450px] h-[450px] bg-[#E3B4D4]/10"
+          style={{ bottom: "10%", left: "20%", animation: "auroraWave3 45s ease-in-out infinite" }}
+        />
+      </div>
+    </>
   );
 }
 
@@ -152,23 +145,24 @@ export default function Family() {
   }, 0);
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] text-[#FAF6E3] relative">
-      {/* Video Background */}
-      <BackgroundVideo src={VIDEO_URL} />
+    <div className="min-h-screen calm-gradient-radial text-[#3D3D3D] relative">
+      {/* Aurora Background & Floating Elements */}
+      <AuroraBackground />
+      <FloatingParticles />
 
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#FAF6E3]/10 bg-[#0A0A0A]/80 backdrop-blur-md">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-[#3D3D3D]/10 bg-[#FFF8F0]/80 backdrop-blur-md">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="font-script text-3xl">
-            Recess
+          <Link href="/" className="font-script text-3xl text-[#3D3D3D]">
+            Authentically You
           </Link>
           <a
-            href="https://www.skool.com/recess/about"
+            href="https://www.skool.com/authenticallyou/about"
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-[#D4A853] text-[#0A0A0A] px-6 py-2 rounded-full font-sans font-semibold hover:bg-[#c49943] transition-colors"
+            className="bg-[#C9A86C] text-white px-6 py-2 rounded-full font-sans font-semibold hover:bg-[#b8975b] transition-colors"
           >
-            Join Recess
+            Join Free
           </a>
         </div>
       </header>
@@ -177,23 +171,23 @@ export default function Family() {
         <div className="max-w-6xl mx-auto">
           {/* Hero */}
           <div className="text-center mb-16">
-            <span className="font-sans text-sm tracking-[0.3em] uppercase text-[#D4A853] block mb-4">Meet The Community</span>
-            <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl mb-6">
+            <span className="font-sans text-sm tracking-[0.3em] uppercase text-[#C9A86C] block mb-4">Meet The Community</span>
+            <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl mb-6 text-[#3D3D3D]">
               The Family
             </h1>
-            <p className="font-sans text-xl text-[#FAF6E3]/60 max-w-2xl mx-auto mb-10">
-              Every member brings a unique superpower. Here&apos;s who makes Recess special.
+            <p className="font-sans text-xl text-[#6B6B6B] max-w-2xl mx-auto mb-10">
+              Every member brings a unique superpower. Here&apos;s who makes Authentically You special.
             </p>
 
             {/* Search */}
             <div className="max-w-md mx-auto relative">
-              <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-[#FAF6E3]/40" />
+              <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-[#6B6B6B]/40" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search by name or superpower..."
-                className="w-full pl-12 pr-4 py-4 rounded-full bg-[#FAF6E3]/10 border border-[#FAF6E3]/20 text-[#FAF6E3] placeholder-[#FAF6E3]/40 focus:outline-none focus:border-[#D4A853] font-sans"
+                className="w-full pl-12 pr-4 py-4 rounded-full bg-white/60 border border-[#3D3D3D]/10 text-[#3D3D3D] placeholder-[#6B6B6B]/50 focus:outline-none focus:border-[#C9A86C] font-sans"
               />
             </div>
           </div>
@@ -201,12 +195,12 @@ export default function Family() {
           {/* Stats */}
           <div className="flex justify-center gap-8 mb-8">
             <div className="text-center">
-              <p className="font-serif text-4xl text-[#D4A853]">{familyMembers.length}</p>
-              <p className="font-sans text-sm text-[#FAF6E3]/50">Members</p>
+              <p className="font-serif text-4xl text-[#C9A86C]">{familyMembers.length}</p>
+              <p className="font-sans text-sm text-[#6B6B6B]">Members</p>
             </div>
             <div className="text-center">
-              <p className="font-serif text-4xl text-[#D4A853]">{totalSuperpowers}</p>
-              <p className="font-sans text-sm text-[#FAF6E3]/50">Superpowers</p>
+              <p className="font-serif text-4xl text-[#C9A86C]">{totalSuperpowers}</p>
+              <p className="font-sans text-sm text-[#6B6B6B]">Superpowers</p>
             </div>
           </div>
 
@@ -214,7 +208,7 @@ export default function Family() {
           <div className="text-center mb-16">
             <Link
               href="/power-map"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[#9EB1C7]/20 border border-[#9EB1C7]/40 rounded-full text-[#9EB1C7] hover:bg-[#9EB1C7]/30 hover:border-[#9EB1C7]/60 transition-all font-sans text-sm font-medium"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#C5B4E3]/20 border border-[#C5B4E3]/40 rounded-full text-[#6B6B6B] hover:bg-[#C5B4E3]/30 hover:border-[#C5B4E3]/60 transition-all font-sans text-sm font-medium"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="10" />
@@ -230,21 +224,21 @@ export default function Family() {
             {filteredMembers.map((member, index) => (
               <div
                 key={index}
-                className="p-6 bg-[#0A0A0A]/70 backdrop-blur-sm border border-[#FAF6E3]/20 rounded-2xl hover:border-[#D4A853]/50 hover:bg-[#0A0A0A]/80 transition-all group"
+                className="p-6 bg-white/60 backdrop-blur-sm border border-[#3D3D3D]/10 rounded-2xl hover:border-[#C9A86C]/50 hover:bg-white/80 transition-all group soft-glow"
               >
                 {/* Avatar with image or initials */}
                 <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#D4A853]/50 to-[#9EB1C7]/50 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#C9A86C]/50 to-[#C5B4E3]/50 flex items-center justify-center flex-shrink-0 overflow-hidden">
                     {member.image ? (
                       <Image src={member.image} alt={member.name} width={48} height={48} className="w-full h-full object-cover" />
                     ) : (
-                      <span className="font-serif text-lg text-white font-semibold">
+                      <span className="font-serif text-lg text-[#3D3D3D] font-semibold">
                         {member.name.split(' ').map(n => n[0]).join('')}
                       </span>
                     )}
                   </div>
                   <div>
-                    <h3 className="font-serif text-xl font-semibold text-white group-hover:text-[#D4A853] transition-colors">
+                    <h3 className="font-serif text-xl font-semibold text-[#3D3D3D] group-hover:text-[#C9A86C] transition-colors">
                       {member.name}
                     </h3>
                   </div>
@@ -253,19 +247,19 @@ export default function Family() {
                 {/* Superpower */}
                 <div className="mb-4">
                   <div className="flex items-center gap-2 mb-2">
-                    <Sparkles className="w-4 h-4 text-[#D4A853]" />
-                    <span className="font-sans text-xs tracking-wider uppercase text-[#D4A853] font-semibold">Superpower</span>
+                    <Sparkles className="w-4 h-4 text-[#C9A86C]" />
+                    <span className="font-sans text-xs tracking-wider uppercase text-[#C9A86C] font-semibold">Superpower</span>
                   </div>
-                  <p className="font-sans text-sm text-white/90 leading-relaxed font-medium">
+                  <p className="font-sans text-sm text-[#3D3D3D]/90 leading-relaxed font-medium">
                     {member.superpower}
                   </p>
                 </div>
 
                 {/* Needs help with */}
                 {member.needsHelp && (
-                  <div className="pt-4 border-t border-[#FAF6E3]/10">
-                    <span className="font-sans text-xs text-[#FAF6E3]/60 font-medium">Needs help with:</span>
-                    <p className="font-sans text-sm text-[#FAF6E3]/70 mt-1">
+                  <div className="pt-4 border-t border-[#3D3D3D]/10">
+                    <span className="font-sans text-xs text-[#6B6B6B] font-medium">Needs help with:</span>
+                    <p className="font-sans text-sm text-[#6B6B6B] mt-1">
                       {member.needsHelp}
                     </p>
                   </div>
@@ -276,24 +270,24 @@ export default function Family() {
 
           {filteredMembers.length === 0 && (
             <div className="text-center py-16">
-              <p className="font-sans text-[#FAF6E3]/50">No members match your search.</p>
+              <p className="font-sans text-[#6B6B6B]">No members match your search.</p>
             </div>
           )}
 
           {/* CTA */}
           <div className="mt-20 text-center">
-            <div className="max-w-xl mx-auto p-10 bg-gradient-to-br from-[#D4A853]/10 to-[#9EB1C7]/10 rounded-2xl border border-[#D4A853]/20">
-              <h2 className="font-serif text-3xl mb-4">Want to join the family?</h2>
-              <p className="font-sans text-[#FAF6E3]/60 mb-8">
+            <div className="max-w-xl mx-auto p-10 bg-gradient-to-br from-[#C9A86C]/10 to-[#C5B4E3]/10 rounded-2xl border border-[#C9A86C]/20">
+              <h2 className="font-serif text-3xl mb-4 text-[#3D3D3D]">Want to join the family?</h2>
+              <p className="font-sans text-[#6B6B6B] mb-8">
                 Bring your superpower. We&apos;ll help you grow it.
               </p>
               <a
-                href="https://www.skool.com/recess/about"
+                href="https://www.skool.com/authenticallyou/about"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block bg-[#D4A853] text-[#0A0A0A] px-8 py-4 rounded-full font-sans font-semibold hover:bg-[#c49943] transition-colors"
+                className="inline-block bg-[#C9A86C] text-white px-8 py-4 rounded-full font-sans font-semibold hover:bg-[#b8975b] transition-colors"
               >
-                Join Recess
+                Join Authentically You
               </a>
             </div>
           </div>
@@ -301,18 +295,18 @@ export default function Family() {
       </main>
 
       {/* Footer */}
-      <footer className="relative z-10 py-16 px-8 border-t border-[#FAF6E3]/10 bg-[#0A0A0A]/80 backdrop-blur-sm">
+      <footer className="relative z-10 py-16 px-8 border-t border-[#3D3D3D]/10 bg-[#FFF8F0]/80 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-          <Link href="/" className="font-script text-3xl">
-            Recess
+          <Link href="/" className="font-script text-3xl text-[#3D3D3D]">
+            Authentically You
           </Link>
-          <div className="flex gap-8 font-sans text-sm text-[#FAF6E3]/60">
-            <Link href="/" className="hover:text-[#FAF6E3] transition-colors">Home</Link>
-            <Link href="/power-map" className="hover:text-[#FAF6E3] transition-colors">Power Map</Link>
-            <Link href="/affiliates" className="hover:text-[#FAF6E3] transition-colors">Affiliates</Link>
-            <a href="https://www.skool.com/recess/about" target="_blank" rel="noopener noreferrer" className="hover:text-[#FAF6E3] transition-colors">Community</a>
+          <div className="flex gap-8 font-sans text-sm text-[#6B6B6B]">
+            <Link href="/" className="hover:text-[#3D3D3D] transition-colors">Home</Link>
+            <Link href="/power-map" className="hover:text-[#3D3D3D] transition-colors">Power Map</Link>
+            <Link href="/quiz" className="hover:text-[#3D3D3D] transition-colors">Quiz</Link>
+            <a href="https://www.skool.com/authenticallyou/about" target="_blank" rel="noopener noreferrer" className="hover:text-[#3D3D3D] transition-colors">Community</a>
           </div>
-          <span className="font-sans text-xs text-[#FAF6E3]/30"><a href="/admin" className="hover:text-[#FAF6E3]/50 transition-colors">&copy;</a> 2026 Recess. All rights reserved.</span>
+          <span className="font-sans text-xs text-[#6B6B6B]/50">&copy; 2026 Authentically You. All rights reserved.</span>
         </div>
       </footer>
     </div>
