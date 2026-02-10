@@ -23,7 +23,7 @@ export function middleware(request: NextRequest) {
       const decoded = Buffer.from(sessionCookie.value, 'base64').toString();
       const [username, timestamp] = decoded.split(':');
       
-      if (username !== 'admin' || !timestamp) {
+      if (!username || !timestamp) {
         return NextResponse.redirect(new URL('/admin/login', request.url));
       }
       

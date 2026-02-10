@@ -454,7 +454,7 @@ export default function ContentLibrary() {
     : posts.filter(post => post.category === currentFilter);
 
   const handleEdit = (post: Post) => {
-    setEditingPost(post);
+    setEditingPost(post.id);
     setEditForm({
       title: post.title,
       short: post.short,

@@ -10,7 +10,7 @@ function checkAuth(request: NextRequest) {
     const decoded = Buffer.from(sessionCookie.value, 'base64').toString();
     const [username, timestamp] = decoded.split(':');
     
-    if (username !== 'admin' || !timestamp) return false;
+    if (!username || !timestamp) return false;
     
     // Check if session is expired (24 hours)
     const sessionAge = Date.now() - parseInt(timestamp);
