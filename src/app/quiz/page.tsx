@@ -431,6 +431,7 @@ export default function QuizPage() {
   const [answers, setAnswers] = useState<Record<number, string[]>>({});
   const [isComplete, setIsComplete] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
 
   const question = allQuestions[currentQuestion];
   const totalQuestions = allQuestions.length;
@@ -470,21 +471,21 @@ export default function QuizPage() {
       });
 
       // Auto-advance for single select
-      setTimeout(() => {
+      setTimeout(async () => {
         if (currentQuestion < totalQuestions - 1) {
           setCurrentQuestion(currentQuestion + 1);
         } else {
-          setIsComplete(true);
+          await completeQuiz();
         }
       }, 300);
     }
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (currentQuestion < totalQuestions - 1) {
       setCurrentQuestion(currentQuestion + 1);
     } else {
-      setIsComplete(true);
+      await completeQuiz();
     }
   };
 
@@ -495,6 +496,67 @@ export default function QuizPage() {
   };
 
   const canProceed = (answers[question?.id] || []).length > 0;
+
+  // Function to save quiz results
+  const saveQuizResults = async (results: any, styleInsights: string[], score: number, percentage: number) => {
+    if (isSaving) return; // Prevent double submission
+    
+    setIsSaving(true);
+    try {
+      const response = await fetch('/api/quiz/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          answers,
+          results,
+          styleInsights,
+          score,
+          percentage,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save results');
+      }
+
+      const data = await response.json();
+      console.log('Quiz results saved:', data.id);
+    } catch (error) {
+      console.error('Error saving quiz results:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Complete the quiz and save results
+  const completeQuiz = async () => {
+    const results = calculateResults(answers);
+    const styleInsights = getStyleInsights(answers);
+    
+    // Calculate score and percentage
+    let score = 0;
+    const maxScore = 18 * 5;
+    const primaryQuestions = allQuestions.filter(q => q.category === "primary");
+    
+    primaryQuestions.forEach(q => {
+      const answer = answers[q.id]?.[0];
+      if (answer) {
+        const index = q.options.indexOf(answer);
+        if (index !== -1) {
+          score += index + 1;
+        }
+      }
+    });
+    
+    const percentage = (score / maxScore) * 100;
+    
+    // Save results to backend
+    await saveQuizResults(results, styleInsights, score, percentage);
+    
+    setIsComplete(true);
+  };
 
   if (showIntro) {
     return (

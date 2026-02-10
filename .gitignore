@@ -60,3 +60,7 @@ logo.jpg
 marie.jpg
 online.png
 untitled folder/
+
+# Quiz data - DO NOT ignore in production, but ignore locally
+# Comment out the line below for production deployments
+data/quiz-results.json

@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Elfina Luk / AuthenticallyYou - Content Library</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header .subtitle {
+            font-size: 1.2em;
+            opacity: 0.95;
+            margin-bottom: 20px;
+        }
+
+        .header .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+
+        .controls {
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            color: #667eea;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            background: #f0f0ff;
+        }
+
+        .tab.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .filter-container {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 12px 20px;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 1em;
+            margin-bottom: 15px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .toggle-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .toggle-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .toggle-btn:hover {
+            background: #5568d3;
+        }
+
+        .posts-container {
+            padding: 30px;
+        }
+
+        .post-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: all 0.3s;
+        }
+
+        .post-card:hover {
+            border-color: #667eea;
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+        }
+
+        .post-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .post-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #2d3748;
+            flex: 1;
+        }
+
+        .post-meta {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .category-badge {
+            padding: 6px 14px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .type-badge {
+            padding: 6px 14px;
+            background: #f093fb;
+            color: white;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .post-content {
+            color: #4a5568;
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .post-content.long {
+            display: none;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .copy-btn {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #5568d3;
+        }
+
+        .copy-btn.copied {
+            background: #48bb78;
+        }
+
+        .export-section {
+            padding: 20px 30px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+            text-align: center;
+        }
+
+        .export-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1.1em;
+            transition: all 0.3s;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .header .stats {
+                gap: 20px;
+            }
+
+            .stat-number {
+                font-size: 1.5em;
+            }
+
+            .post-title {
+                font-size: 1.2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎬 Elfina Luk / AuthenticallyYou</h1>
+            <div class="subtitle">From Hollywood to Your Camera: Confidence on Camera Content Library</div>
+            <div class="stats">
+                <div class="stat">
+                    <span class="stat-number">20+</span>
+                    <span class="stat-label">Years Hollywood</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">200+</span>
+                    <span class="stat-label">Film/TV Sets</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-number">20</span>
+                    <span class="stat-label">Ready Posts</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="tab-container">
+                <div class="tab active" data-tab="all">All Posts</div>
+                <div class="tab" data-tab="external">External (10)</div>
+                <div class="tab" data-tab="internal">Internal (10)</div>
+            </div>
+
+            <input type="text" class="search-box" placeholder="Search posts...">
+
+            <div class="filter-container">
+                <div class="filter-btn active" data-filter="all">All Categories</div>
+                <div class="filter-btn" data-filter="mindset">Mindset</div>
+                <div class="filter-btn" data-filter="workflow">Workflow</div>
+                <div class="filter-btn" data-filter="authenticity">Authenticity</div>
+                <div class="filter-btn" data-filter="hollywood">Hollywood Insights</div>
+                <div class="filter-btn" data-filter="technical">Technical</div>
+                <div class="filter-btn" data-filter="community">Community</div>
+                <div class="filter-btn" data-filter="transformation">Transformation</div>
+                <div class="filter-btn" data-filter="resources">Resources</div>
+            </div>
+
+            <div class="toggle-container">
+                <button class="toggle-btn" id="versionToggle">Switch to LONG Version</button>
+            </div>
+        </div>
+
+        <div class="posts-container" id="postsContainer">
+            <!-- Posts will be inserted here by JavaScript -->
+        </div>
+
+        <div class="export-section">
+            <button class="export-btn" onclick="exportAll()">📥 Export All Posts to Text</button>
+        </div>
+    </div>
+
+    <script>
+        const posts = [
+            // EXTERNAL POSTS (10)
+            {
+                id: 1,
+                type: 'external',
+                category: 'mindset',
+                title: 'Why Camera Confidence Changed Everything for My Business',
+                short: `20+ years in Hollywood taught me something most coaches miss: Camera confidence isn't about being perfect. It's about being present.\n\nHere's what changed when I stopped performing and started showing up:\n\nBefore: Deleted 47 takes, spent hours editing, posted nothing\nAfter: Hit record, shared my truth, built real connections\n\nThe shift? Realizing my audience doesn't need a performance. They need a person.\n\nYour expertise is already there. Your camera just needs to see the real you.`,
+                long: `After 20+ years on 200+ film and TV production sets with multiple award nominations, I learned something that completely transformed how I show up online: the camera doesn't lie, but it also doesn't judge.\n\nHere's the truth about camera confidence that nobody talks about:\n\nIn Hollywood, we had 15 takes, perfect lighting, a full crew, and still felt the pressure. But you know what made the difference between a good performance and a great one? The moments when we forgot the camera existed and just existed as ourselves.\n\nThat's exactly what your audience is craving from you.\n\nBefore I learned this:\n• I'd record 47 takes of a single video\n• Spend 6 hours editing 90 seconds of content\n• Delete everything and post nothing\n• Feel like a fraud every time I tried to "be professional"\n• Watch my competitors grow while I stayed stuck\n\nAfter I shifted to authentic presence:\n• Hit record, speak my truth, publish within the day\n• Built a community of people who actually trust me\n• Stopped comparing myself to other creators\n• Started making real income from video content\n• Helped hundreds of others do the same\n\nThe breakthrough? Understanding that camera confidence isn't about being perfect. It's about being present. It's not about performance. It's about presence.\n\nYour audience doesn't need another polished, scripted, over-produced video. They need to see the real expert behind the camera. They need to connect with YOU.\n\nThe camera is just a tool. Your authenticity is the superpower.`
+            },
+            {
+                id: 2,
+                type: 'external',
+                category: 'workflow',
+                title: 'The 5-Day Video Publishing System That Actually Works',
+                short: `Most creators spend weeks creating one video. I publish quality content in 5 days, every time.\n\nHere's the system I use:\n\nDay 1: Idea clarity (no guessing what to say)\nDay 2: Simple scripting (structure, not memorization)\nDay 3: Film day (one take philosophy)\nDay 4: Edit with intention (less is more)\nDay 5: Publish + engage\n\nThis isn't theory. It's what I teach every week in our live calls.\n\nThe secret? Systems beat motivation every single time.`,
+                long: `After working on 200+ film and TV sets, I know one thing for certain: the difference between professionals and amateurs isn't talent. It's systems.\n\nMost creators struggle with video because they treat every video like it's their first time. No plan. No system. Just chaos and hope.\n\nHere's the exact 5-day workflow I've refined over 20+ years that takes you from idea to published video:\n\nDAY 1 - IDEA CLARITY:\n• Identify your audience's biggest pain point this week\n• Choose ONE topic (not five)\n• Outline 3-5 key points\n• Write your hook and closing CTA\n• Time investment: 30 minutes\n\nDAY 2 - SIMPLE SCRIPTING:\n• Create talking points, not word-for-word scripts\n• Use the "conversational test" (would you say this to a friend?)\n• Practice once through, then let it go\n• Time investment: 45 minutes\n\nDAY 3 - FILM DAY:\n• Set up your space (I share my exact setup in the community)\n• Do one warm-up take (delete it)\n• Record your real take\n• One and done philosophy\n• Time investment: 60-90 minutes\n\nDAY 4 - EDIT WITH INTENTION:\n• Cut the fluff, keep the gold\n• Add captions for accessibility\n• Simple transitions only\n• Time investment: 90 minutes\n\nDAY 5 - PUBLISH + ENGAGE:\n• Post your video\n• Respond to every comment in the first hour\n• Create 2-3 teaser clips for other platforms\n• Time investment: 60 minutes\n\nTotal time? Less than 6 hours spread over 5 days.\n\nThis isn't some theoretical framework. This is the exact system I use. The same one I teach in our weekly live calls where we literally film and publish together.\n\nThe biggest mistake? Trying to create without a system. That's how you end up in analysis paralysis for weeks.\n\nSystems beat motivation. Structure creates freedom. Consistency builds results.`
+            },
+            {
+                id: 3,
+                type: 'external',
+                category: 'authenticity',
+                title: 'Why "Just Be Yourself" Is Terrible Camera Advice',
+                short: `"Just be yourself on camera" is the worst advice I've ever heard.\n\nHere's why: You have 47 different "selves" depending on context. Which one should you be?\n\nBetter advice from 20+ years in Hollywood:\n\nBe the version of yourself that serves your audience.\nBe present, not perfect.\nBe conversational, not scripted.\nBe intentional about your energy.\n\nAuthenticity isn't accidental. It's a skill you build.`,
+                long: `After 20+ years in Hollywood and multiple award nominations, I've heard every piece of camera advice imaginable. But the worst one? "Just be yourself."\n\nHere's the problem with that advice: You're not one person. You're dozens of versions depending on context.\n\nYou're different with:\n• Your best friend vs your boss\n• Your parents vs your kids\n• Your clients vs your competitors\n• Your morning self vs your exhausted evening self\n\nSo which "yourself" should you be on camera? The confused, scattered version? The overly professional robot version? The trying-too-hard-to-be-relatable version?\n\nThis is what 200+ film sets taught me about authentic presence:\n\nAUTHENTICITY ISN'T ACCIDENTAL - IT'S INTENTIONAL:\n• Choose the version of yourself that serves your audience\n• That version is real, just focused\n• Think: "me at my best, not me at my most performative"\n\nPRESENCE BEATS PERFECTION:\n• Your audience can feel when you're truly there\n• One genuine moment > 100 polished takes\n• Presence is about focus, not flawlessness\n\nCONVERSATIONAL, NOT SCRIPTED:\n• Talk TO someone, not AT the camera\n• Imagine your ideal client sitting across from you\n• Use the same energy you'd use in a coffee shop conversation\n\nINTENTIONAL ENERGY MANAGEMENT:\n• Match your energy to your message\n• Teaching moment? Calm and clear\n• Motivational moment? Bring the fire\n• Vulnerable moment? Soften your presence\n\nHere's what this actually looks like in practice:\n\nBad advice: "Just be yourself and hit record!"\nResult: Awkward, unfocused rambling that helps nobody\n\nGood approach: "I'm being the version of myself that my audience needs to see to trust me, learn from me, and take action."\nResult: Confident, clear, compelling content that converts\n\nAuthenticity on camera isn't about being unfiltered. It's about being intentionally genuine. It's a skill you develop, not an accident you hope for.\n\nAnd that's exactly what we work on together in the AuthenticallyYou community.`
+            },
+            {
+                id: 4,
+                type: 'external',
+                category: 'hollywood',
+                title: 'What 200+ Film Sets Taught Me About Showing Up on Camera',
+                short: `200+ film and TV sets. Multiple award nominations. 20+ years in Hollywood.\n\nHere's what I learned that most video coaches don't teach:\n\n1. The camera sees your intention before your words\n2. Technical perfection kills authentic connection\n3. Your first take is usually your best take\n4. Professionals prepare, then let go\n5. Energy management matters more than lighting\n\nHollywood taught me how to perform. But real connection? That came from unlearning the performance.`,
+                long: `I've stood on 200+ film and television production sets. Worked with Emmy winners. Earned multiple award nominations. Spent 20+ years learning every technical aspect of being on camera.\n\nAnd you know what's wild? Almost everything I learned in Hollywood needed to be UNLEARNED to create authentic content online.\n\nHere's what those 200+ sets actually taught me about showing up on camera:\n\nLESSON 1: THE CAMERA SEES YOUR INTENTION FIRST\n• Before you speak a word, the camera captures your energy\n• Nervous energy reads as inauthentic, even with perfect words\n• Grounded presence reads as trustworthy, even with imperfect delivery\n• This is why your mindset matters more than your script\n\nLESSON 2: TECHNICAL PERFECTION KILLS CONNECTION\n• In Hollywood, we'd do 20 takes for technical perfection\n• Online? Take 20 and you've lost all spontaneity\n• Your audience craves connection, not perfection\n• The "perfectly imperfect" take is usually your best take\n\nLESSON 3: YOUR FIRST TAKE IS USUALLY YOUR BEST\n• First take energy: Present, authentic, alive\n• Take 15 energy: Exhausted, overthinking, robotic\n• The pros know: Prepare intensely, then trust take 1 or 2\n• Stop trying to fix what isn't broken\n\nLESSON 4: PROFESSIONALS PREPARE, THEN LET GO\n• Amateurs wing it and hope\n• Professionals over-prepare and then release control\n• Know your points, then speak conversationally\n• The magic lives in the space between structure and spontaneity\n\nLESSON 5: ENERGY MANAGEMENT > EQUIPMENT\n• I've filmed award-winning scenes with terrible lighting\n• I've seen perfect setups with dead energy that nobody watched\n• Your energy, intention, and presence matter infinitely more than your ring light\n• People connect with people, not production value\n\nLESSON 6: THE UNLEARNING IS THE REAL WORK\n• Hollywood taught me to perform\n• Online success came from presence\n• The transition? Learning to show up as myself\n• That's the journey I now guide others through\n\nThe most valuable thing I learned from 200+ Hollywood sets? How to unlearn performance and relearn presence.\n\nBecause online, your audience doesn't need an actor. They need a guide. They need the real you, showing up consistently, authentically, and confidently.\n\nThat's what we cultivate together in AuthenticallyYou.`
+            },
+            {
+                id: 5,
+                type: 'external',
+                category: 'technical',
+                title: 'The Camera Setup That Actually Matters (And What Doesn\'t)',
+                short: `Everyone obsesses over camera gear. I've filmed on $100K setups and iPhone cameras.\n\nHere's what actually matters:\n\nDOESN'T MATTER:\n• Expensive camera\n• Perfect lighting\n• Professional backdrop\n• Fancy microphone\n\nMATTERS:\n• Clean audio (phone mic is fine)\n• Eye-level framing\n• Stable camera (not shaky)\n• Your energy and presence\n\nI've helped people go from zero to confident on camera using just their phone. Your gear isn't the problem.`,
+                long: `After 20+ years on 200+ professional film and TV sets with equipment worth hundreds of thousands of dollars, I'm going to tell you something that might surprise you:\n\nYour camera gear isn't your problem.\n\nI've filmed on RED cameras worth $50,000. I've used lighting rigs that cost more than a car. I've worked with audio equipment that required a dedicated sound engineer.\n\nAnd you know what? Some of my most engaging content was shot on my iPhone.\n\nHere's the BRUTAL TRUTH about what actually matters:\n\nWHAT DOESN'T MATTER (Stop obsessing):\n\n1. EXPENSIVE CAMERA\n• Your phone camera is probably 4K\n• Most viewers watch on their phone anyway\n• Nobody unsubscribes because of camera quality\n• They leave because of boring content\n\n2. PERFECT LIGHTING\n• Natural window light is free and gorgeous\n• A $20 ring light does 90% of what pro lighting does\n• Harsh shadows? Just move closer to a window\n• Overcast days are a filmmaker's secret weapon\n\n3. PROFESSIONAL BACKDROP\n• A clean wall works\n• A bookshelf shows personality\n• Your actual workspace builds authenticity\n• Stop trying to hide your real environment\n\n4. FANCY MICROPHONE\n• Your phone mic is better than you think\n• A $20 lapel mic solves 95% of audio issues\n• The biggest audio problem? Background noise, not equipment\n• Record in a quiet room and you're golden\n\nWHAT ACTUALLY MATTERS (Invest your energy here):\n\n1. CLEAN AUDIO\n• People will tolerate bad video\n• Nobody tolerates bad audio\n• Solution: Quiet room + phone mic = enough\n• Or grab a $20 lapel mic from Amazon\n\n2. EYE-LEVEL FRAMING\n• Camera at eye level or slightly above\n• Never shoot from below (unless you want double chins)\n• Stack books under your laptop if needed\n• This simple shift changes everything\n\n3. STABLE CAMERA\n• Shaky footage = unwatchable\n• Use a tripod (even a $15 one)\n• Or prop your phone against books\n• Stability > everything else technical\n\n4. YOUR ENERGY AND PRESENCE\n• This is 90% of the equation\n• Confident energy on an iPhone > nervous energy on a RED\n• Your audience feels your presence, not your production value\n• Work on your mindset, not your equipment\n\nMY ACTUAL SETUP THAT I USE FOR CONTENT:\n• iPhone 13 (not even the latest model)\n• Natural window light\n• A clean corner of my home office\n• $20 lapel microphone when needed\n• Books stacked under my phone for height\n\nTotal investment? Maybe $50 beyond the phone I already had.\n\nThe truth? I've helped dozens of people go from camera-shy to confident content creators using nothing but their phone. Because the barrier was never the equipment.\n\nThe barrier was the belief that you need perfect gear to start.\n\nYou don't. You just need to press record.`
+            },
+            {
+                id: 6,
+                type: 'external',
+                category: 'transformation',
+                title: 'From 47 Deleted Takes to Publishing Daily: My Journey',
+                short: `Real talk: I used to delete everything.\n\n47 takes recorded. 47 takes deleted. Zero published.\n\nA Hollywood professional terrified to post a 60-second video.\n\nWhat changed? I stopped treating every video like an audition.\n\nNow I publish consistently because I learned:\n• Progress over perfection\n• Connection over polish\n• Consistency over fear\n\nIf I can shift from Hollywood performer to authentic creator, anyone can.`,
+                long: `I need to tell you something embarrassing. Something that sounds impossible for someone with 20+ years in Hollywood, multiple award nominations, and 200+ professional sets under my belt.\n\nI used to delete everything.\n\nEvery. Single. Video.\n\nHere's how bad it got:\n\n47 takes recorded. 47 takes deleted. Zero content published.\n\nI'd spend 6 hours on a 90-second video, then delete it because "it wasn't good enough." I'd analyze every facial expression, every word, every gesture. I'd compare myself to every other creator. I'd convince myself that my audience expected Hollywood-level perfection.\n\nThe irony? I was a professional performer terrified to show up online.\n\nWHAT I WAS REALLY AFRAID OF:\n• Not being perfect (because Hollywood taught me perfection was the standard)\n• Being judged by other industry professionals\n• Looking stupid compared to "real" online creators\n• Losing my professional credibility\n• Being too much or not enough\n\nTHE BREAKING POINT:\n\nOne day, I watched a creator with 1/100th of my experience absolutely crushing it on camera. Imperfect lighting. Stumbled over words. Posted it anyway. Got 10,000 views and dozens of comments from people whose lives they changed.\n\nAnd it hit me: I was so busy being a professional that I forgot to be a person.\n\nTHE SHIFT THAT CHANGED EVERYTHING:\n\nI decided to run an experiment. For one week, I would:\n• Record one take\n• Edit for 30 minutes max\n• Post no matter what\n• Not delete anything\n\nDay 1: Terrifying. Posted anyway.\nDay 2: Still scared. Posted anyway.\nDay 3: Something shifted.\nDay 4: Got my first real comment from someone I helped.\nDay 5: Started to feel like myself on camera.\n\nBy week's end, I had published more content than I had in the previous 6 months. And you know what? The world didn't end. My credibility didn't vanish. Nobody laughed at me.\n\nInstead, people started reaching out saying, "Finally, someone who gets it. Finally, someone real."\n\nWHAT I LEARNED:\n\n1. PROGRESS BEATS PERFECTION\n• Your imperfect published video helps someone\n• Your perfect unpublished video helps nobody\n• Done is infinitely better than perfect\n\n2. CONNECTION BEATS POLISH\n• People don't connect with perfection\n• They connect with authenticity\n• Your mess is your message\n\n3. CONSISTENCY BEATS FEAR\n• The more you publish, the less each video matters\n• The less each video matters, the less you fear it\n• The less you fear it, the more authentic you become\n\n4. YOUR AUDIENCE ISN'T OTHER PROFESSIONALS\n• They're not judging your technical execution\n• They're asking "Can this person help me?"\n• Authenticity answers that question\n\nWHERE I AM NOW:\n\nI publish content consistently. Not perfectly, but consistently. I help hundreds of people find their camera confidence. I built a community of real humans showing up authentically.\n\nAnd the most amazing part? The less I try to be impressive, the more impact I make.\n\nIf I—a trained Hollywood professional—can shift from 47 deleted takes to confident, consistent publishing, so can you.\n\nThe secret isn't in getting better equipment, more training, or perfect lighting. The secret is in letting go of perfect and showing up as yourself.`
+            },
+            {
+                id: 7,
+                type: 'external',
+                category: 'mindset',
+                title: 'The Confidence Paradox: Why Trying to Feel Confident Keeps You Stuck',
+                short: `Here's the paradox: You can't think your way to camera confidence.\n\nI spent years trying to "feel ready" before hitting record. I never felt ready.\n\nThe shift? Action creates confidence, not the reverse.\n\nHow to actually build camera confidence:\n1. Record before you feel ready\n2. Publish before it feels perfect\n3. Repeat until it feels normal\n\nConfidence isn't a prerequisite. It's a byproduct of showing up anyway.`,
+                long: `Here's something nobody tells you about camera confidence: You're approaching it completely backwards.\n\nMost people think: "Once I feel confident, THEN I'll start recording."\n\nThe truth: You'll feel confident AFTER you start recording.\n\nThis is the confidence paradox, and it's kept more talented people stuck than almost anything else.\n\nMY STORY:\n\nEven with 20+ years in Hollywood, multiple award nominations, and 200+ professional sets, I still felt that resistance every time I tried to create online content.\n\nI kept waiting to "feel confident." Kept thinking:\n• "Once I know exactly what to say..."\n• "Once I have the perfect setup..."\n• "Once I feel more prepared..."\n• "Once I'm not so nervous..."\n\nThat day never came. Because confidence doesn't work that way.\n\nHERE'S HOW CONFIDENCE ACTUALLY WORKS:\n\nCONFIDENCE ISN'T A FEELING - IT'S A SKILL\n• You don't wait to feel like a swimmer before entering the pool\n• You swim, and then you feel like a swimmer\n• Camera confidence is the exact same\n• The action creates the identity, not the reverse\n\nYOU'RE SOLVING THE WRONG PROBLEM\n• Problem you think you have: "I need more confidence"\n• Actual problem: "I need more reps"\n• The solution isn't internal work (at first)\n• The solution is external action\n\nTHE CONFIDENCE EQUATION:\n\nAction → Evidence → Belief → Confidence → More Action\n\nLet me break this down:\n\n1. ACTION (Even when you don't feel ready)\n• You record a video despite being nervous\n• You publish it despite it being imperfect\n• This is the hard part, but it's the ONLY starting point\n\n2. EVIDENCE (You survived)\n• The video is published\n• The world didn't end\n• Maybe someone even commented something nice\n• Your nervous system registers: "That wasn't fatal"\n\n3. BELIEF (Pattern recognition)\n• You did it once, you can do it again\n• It gets slightly easier the second time\n• Your brain starts to reclassify "recording video" from "threat" to "task"\n\n4. CONFIDENCE (The byproduct)\n• After 5 videos, you feel a little confident\n• After 20 videos, you feel pretty confident\n• After 50 videos, it's just Tuesday\n• Confidence arrived, but only AFTER consistent action\n\n5. MORE ACTION (The cycle continues)\n• Now action feels easier\n• So you do more of it\n• Which creates more evidence\n• Which builds more belief\n• The upward spiral begins\n\nHOW TO USE THIS:\n\nSTOP:\n• Waiting to feel confident\n• Looking for the "secret" to instant confidence\n• Consuming more content about confidence\n• Thinking confidence comes first\n\nSTART:\n• Record one bad video today\n• Publish it tomorrow\n• Record another one next week\n• Repeat until it feels normal\n• That's it. That's the whole strategy.\n\nTHE UNCOMFORTABLE TRUTH:\n\nYou will never feel 100% confident before your first video. Or your tenth. Maybe not even your hundredth.\n\nBut you will feel progressively less uncomfortable. The resistance will shrink. The recovery time will shorten. And one day you'll realize you're just... doing it.\n\nThat's confidence. Not the absence of fear. Just the normalization of action despite it.\n\nAnd that's exactly what we practice together in the AuthenticallyYou community. Not "thinking about" confidence. Actually building it through consistent, supported action.`
+            },
+            {
+                id: 8,
+                type: 'external',
+                category: 'workflow',
+                title: 'Why Your Videos Take Forever (And How to Fix It)',
+                short: `Your video takes 6 hours because you're missing a system.\n\nMost creators:\n• Wing the idea\n• Hope the filming goes well\n• Spend forever editing\n• Still feel unsatisfied\n\nWhat actually works:\n30 min: Idea + structure\n60 min: Film (1-2 takes max)\n60 min: Edit\n30 min: Publish + engage\n\nTotal: 3 hours. One video. Done.\n\nSystems beat motivation every time.`,
+                long: `Let me guess: Your last video took you 6-8 hours to create. Maybe longer. And you're still not satisfied with it.\n\nYou spent hours perfecting the script. More hours filming take after take. Even more hours editing. And by the time you published (if you published), you were exhausted and already dreading the next one.\n\nSound familiar?\n\nAfter 20+ years on 200+ professional film sets, I can tell you exactly why your videos take forever: You don't have a system.\n\nHere's the difference:\n\nMOST CREATORS (The 6-Hour Struggle):\n• Stare at blank screen trying to think of ideas (60 min)\n• Finally land on something (maybe)\n• Start filming with no structure (30 min wasted)\n• Realize you don't know what to say (re-start)\n• Film 15+ takes trying to get it perfect (90 min)\n• Spend hours editing because you have too much footage (180 min)\n• Second-guess everything and re-edit (60 min)\n• Finally post, exhausted and already dreading next time\n\nTotal: 6-8+ hours of inefficient chaos\n\nPROFESSIONAL SYSTEM (The 3-Hour Formula):\n\n30 MINUTES - IDEA + STRUCTURE:\n• Review your audience's recent questions/pain points\n• Choose ONE topic that serves them\n• Outline 3-5 key points\n• Write your opening hook and closing CTA\n• Done. Move on.\n\n60 MINUTES - FILM (1-2 takes maximum):\n• Set up your space (5 min)\n• Do one warm-up take to get the nerves out (delete this)\n• Film your REAL take with your structure in mind\n• Maybe do take 2 if something went truly wrong\n• Stop. You're done. More takes = worse quality, not better\n\n60 MINUTES - EDIT:\n• Import and organize (5 min)\n• Cut the warm-up and any obvious flubs (10 min)\n• Add captions for accessibility (15 min)\n• Basic color/audio correction if needed (10 min)\n• Create thumbnail (15 min)\n• Export (5 min - computer does this while you do something else)\n\n30 MINUTES - PUBLISH + ENGAGE:\n• Upload to platform (5 min)\n• Write compelling caption (10 min)\n• Publish (1 min)\n• Respond to early comments (14 min)\n\nTotal: 3 hours. One complete video. Published and engaging with your audience.\n\nWHY THIS WORKS:\n\n1. DECISION FATIGUE IS MINIMIZED\n• Each phase has ONE job\n• You're not trying to ideate while filming\n• You're not trying to structure while editing\n• Clarity of purpose = speed of execution\n\n2. CONSTRAINTS CREATE QUALITY\n• Unlimited time = unlimited second-guessing\n• Limited time = decisive action\n• Parkinson's Law: Work expands to fill time available\n• Give yourself less time, get better results\n\n3. DONE BEATS PERFECT\n• A published imperfect video helps someone today\n• A perfect unpublished video helps nobody ever\n• Your 80% is someone else's 100%\n• Ship it and move on\n\nHOW TO IMPLEMENT THIS:\n\nWEEK 1: Track your current process\n• Time how long each phase actually takes\n• Note where you get stuck\n• Identify your biggest time-wasters\n\nWEEK 2: Try this system exactly as written\n• Use a timer for each phase\n• Move to next phase when time is up\n• Resist the urge to perfect\n\nWEEK 3: Refine for your specific needs\n• Maybe you need 40 min for editing, 20 for ideation\n• Adjust the times, but keep the structure\n• The system serves you, not the reverse\n\nWEEK 4: It becomes your new normal\n• You've now published 4 videos in 4 weeks\n• Each one took 3 hours instead of 8\n• You have momentum instead of burnout\n\nTHE BRUTAL TRUTH:\n\nThe reason your videos take forever isn't because you need more skill, better equipment, or more time.\n\nIt's because you don't have a repeatable system.\n\nSystems beat motivation. Structure creates freedom. Constraints unlock creativity.\n\nAnd that's exactly what I teach in the 5-day workflow inside AuthenticallyYou. Not just theory. Actual systems you can implement today.`
+            },
+            {
+                id: 9,
+                type: 'external',
+                category: 'hollywood',
+                title: 'The One Hollywood Secret That Changed My Online Content',
+                short: `200+ film sets taught me one thing that completely changed my online content:\n\nEnergy management beats everything else.\n\nIn Hollywood:\n• We matched energy to the scene\n• Quiet moments stayed quiet\n• Big moments had big energy\n• Mismatched energy ruined the take\n\nOnline? Same rules apply.\n\nYour camera confidence isn't about being "on" all the time. It's about matching your energy to your message.`,
+                long: `After 20+ years on 200+ professional film and TV sets, earning multiple award nominations, I learned hundreds of techniques, tips, and tricks about being on camera.\n\nBut there's ONE thing that made more difference than anything else when I transitioned to creating online content:\n\nEnergy management.\n\nLet me explain what this means and why it matters more than your equipment, your lighting, or even your script.\n\nWHAT HOLLYWOOD TAUGHT ME:\n\nOn professional sets, we didn't just "perform." We managed our energy with surgical precision:\n\nQUIET, INTIMATE SCENES:\n• Lower energy, softer presence\n• Close camera, whispered delivery\n• Emotional depth over volume\n• The audience leans IN to listen\n\nACTION SCENES:\n• High energy, bigger presence\n• Wide shots, powerful delivery\n• Physical intensity, clear projection\n• The audience is PULLED into the moment\n\nCOMEDIC SCENES:\n• Light energy, playful presence\n• Timing over volume\n• Expressiveness in face and body\n• The audience FEELS the joy\n\nWhen energy mismatched the scene, it didn't matter how perfect everything else was. The take was ruined.\n\nWHY THIS MATTERS FOR YOUR CONTENT:\n\nMost creators make one of two mistakes:\n\n1. THE "ALWAYS ON" MISTAKE:\n• Every video is high-energy performance mode\n• Teaching moments become overwhelming\n• Vulnerable moments feel forced\n• Audience gets exhausted watching you\n\n2. THE "MONOTONE" MISTAKE:\n• Every video is the same flat delivery\n• Exciting announcements feel boring\n• Important points get lost\n• Audience zones out within seconds\n\nBoth approaches ignore the fundamental truth: Your energy should match your message.\n\nHOW TO ACTUALLY DO THIS:\n\nBEFORE YOU FILM, ASK:\n• What's the purpose of this video?\n• What emotional state do I want my viewer in after watching?\n• What energy level serves that purpose?\n\nTHEN MATCH YOUR ENERGY:\n\nTEACHING CONTENT:\n• Calm, clear, grounded energy\n• Pace yourself (too fast = overwhelm)\n• Use pauses for emphasis\n• Think: Trusted guide, not hype person\n\nMOTIVATIONAL CONTENT:\n• Higher energy, inspiring presence\n• Bigger gestures, varied vocal tone\n• Build momentum through the video\n• Think: Coach in your corner, not lecturer\n\nVULNERABLE SHARING:\n• Softer energy, intimate presence\n• Allow silence and space\n• Let emotion show naturally\n• Think: Friend over coffee, not stage performance\n\nANNOUNCEMENT CONTENT:\n• Excited energy (but authentic)\n• Let your genuine enthusiasm show\n• Match the significance of the news\n• Think: Sharing good news, not selling\n\nPROBLEM-SOLVING CONTENT:\n• Steady, confident energy\n• Not too high (comes off as minimizing)\n• Not too low (comes off as defeatist)\n• Think: Capable expert who gets it\n\nTHE ENERGY MISMATCH EXAMPLES:\n\n❌ Teaching deep technical content with motivational speaker energy = Overwhelming\n❌ Sharing exciting news with monotone energy = Nobody cares\n❌ Vulnerable story with "always on" performance energy = Feels fake\n❌ Motivational content with low energy = Falls flat\n\nYOUR ENERGY DIAGNOSTIC:\n\nWatch your last 3 videos and ask:\n• Did my energy match my message?\n• Was I too high for the moment?\n• Too low for the significance?\n• Or was it just right?\n\nMost creators have never even considered this. They just show up the same way every time and wonder why some videos land and others don't.\n\nTHE PRACTICE:\n\nBefore your next video:\n1. Identify the purpose\n2. Choose your energy level (1-10 scale)\n3. Do a 30-second warm-up at that energy\n4. Hit record and maintain it\n5. Review: Did the energy serve the message?\n\nOver time, this becomes second nature. You won't need to think about it. You'll just naturally match your energy to your message.\n\nThat's what professionals do. And that's what we practice together in the AuthenticallyYou community.\n\nBecause camera confidence isn't about being "on" all the time. It's about being intentional with your energy. Every. Single. Time.`
+            },
+            {
+                id: 10,
+                type: 'external',
+                category: 'transformation',
+                title: 'What Makes Someone "Good on Camera" (It\'s Not What You Think)',
+                short: `People always ask: "What makes someone good on camera?"\n\nAfter 200+ film sets, here's the truth:\n\nIt's not:\n• How you look\n• Your equipment\n• Your experience\n• Being extroverted\n\nIt IS:\n• How present you are\n• How much you care about serving\n• Your willingness to be imperfect\n• Your commitment to consistency\n\nCamera confidence is a decision followed by consistent action. That's it.`,
+                long: `After 20+ years in Hollywood, working on 200+ professional film and television sets, earning multiple award nominations, and now helping hundreds of people find their camera confidence, I can finally answer this question definitively:\n\n"What makes someone good on camera?"\n\nAnd the answer will probably surprise you.\n\nWHAT PEOPLE THINK MAKES SOMEONE GOOD ON CAMERA:\n\n❌ Being naturally photogenic\n❌ Having expensive equipment\n❌ Years of experience\n❌ Being extroverted and outgoing\n❌ Never making mistakes\n❌ Perfect lighting and setup\n❌ Professional training\n❌ Being born with "it"\n\nI've worked with people who had ALL of those things and still struggled on camera. And I've worked with people who had NONE of those things who absolutely crushed it.\n\nSo what's the real difference?\n\nWHAT ACTUALLY MAKES SOMEONE GOOD ON CAMERA:\n\n1. PRESENCE OVER PERFORMANCE\n\nThe best people on camera aren't performing. They're present.\n\nWhat this means:\n• They're fully there in the moment\n• They're not thinking about how they look\n• They're focused on the message, not the delivery\n• Their attention is on serving, not impressing\n\nYou can FEEL when someone is present. And you can feel when they're performing. The camera amplifies both.\n\n2. SERVICE OVER SELF\n\nPeople who are "good on camera" care more about helping their audience than looking good.\n\nWhat this looks like:\n• They prioritize clarity over cleverness\n• They'll risk looking silly if it helps someone understand\n• They focus on "Did this serve them?" not "Did I look good?"\n• Their content is about the viewer, not themselves\n\nThis shift in focus eliminates 90% of camera anxiety.\n\n3. IMPERFECTION OVER POLISH\n\nThe most compelling people on camera are willing to be imperfect.\n\nWhy this matters:\n• Perfect is unrelatable\n• Imperfect is human\n• Humans connect with humans\n• Your stumbles make you trustworthy\n\nThe goal isn't flawless execution. It's authentic connection.\n\n4. CONSISTENCY OVER TALENT\n\nEvery single person I know who is "naturally good on camera" got that way through repetition.\n\nThe math:\n• 1 video = Nervous, overthinking, stiff\n• 10 videos = Starting to relax\n• 50 videos = Comfortable, conversational\n• 100 videos = "Natural" (really just practiced)\n\nConsistency creates competence. There's no shortcut.\n\n5. DECISION OVER FEELING\n\nHere's the biggest secret: Being good on camera isn't about feeling confident. It's about deciding to show up anyway.\n\nThe people who succeed:\n• Don't wait to feel ready\n• Don't wait for perfect conditions\n• Don't wait for permission\n• They just decide and do it\n\nDecision precedes confidence, not the reverse.\n\nTHE REAL FORMULA:\n\nPresence (being fully here)\n+ Service (focus on helping)\n+ Imperfection (being human)\n+ Consistency (regular practice)\n+ Decision (doing it anyway)\n= "Good on Camera"\n\nNOTICE WHAT'S MISSING:\n• Nothing about your looks\n• Nothing about your equipment\n• Nothing about your background\n• Nothing about being born with talent\n\nBECAUSE THOSE THINGS DON'T MATTER.\n\nWHAT THIS MEANS FOR YOU:\n\nIf you think you're "not a camera person," you're wrong. You just haven't built the skill yet.\n\nIf you think you need to "get ready" before starting, you're wrong. You get ready BY starting.\n\nIf you think some people just "have it" and you don't, you're wrong. They just started before you did.\n\nTHE PATH FORWARD:\n\n1. Decide that you're going to do this\n2. Focus on serving your audience, not impressing them\n3. Be willing to be imperfect\n4. Show up consistently\n5. Stay present in each moment\n\nDo this for 90 days and you'll be unrecognizable on camera. Not because you changed who you are, but because you learned to show up as yourself.\n\nThat's what being "good on camera" actually means. And that's exactly what we practice together in the AuthenticallyYou community.\n\nBecause you don't need to be different. You just need to show up.`
+            },
+
+            // INTERNAL POSTS (10)
+            {
+                id: 11,
+                type: 'internal',
+                category: 'community',
+                title: 'Welcome to AuthenticallyYou: Start Here',
+                short: `Welcome to the community! Here's how to get the most value:\n\n1. Introduce yourself in the Introductions thread\n2. Join our weekly live call (Wednesdays, link pinned)\n3. Access the 5-Day Video Workflow in Resources\n4. Share your first video in the Wins channel\n\nRemember: This is a judgment-free zone. Imperfect action beats perfect planning.\n\nYour camera confidence journey starts with one video. Let's do this together.`,
+                long: `Welcome to AuthenticallyYou! I'm so excited to have you here.\n\nThis community exists for one reason: to help you go from camera-shy to confident creator. From overthinking every take to publishing with ease. From hiding your expertise to sharing it boldly.\n\nAfter 20+ years in Hollywood and 200+ professional sets, I've distilled everything into a simple, repeatable system. And this community is where we put it into practice together.\n\nHERE'S HOW TO GET STARTED:\n\nSTEP 1: INTRODUCE YOURSELF (Do this first!)\n• Head to the Introductions thread\n• Share: Your name, what you do, and your biggest camera struggle\n• Bonus: Tell us your camera confidence goal for the next 30 days\n• Why this matters: Connection starts with showing up\n\nSTEP 2: JOIN OUR WEEKLY LIVE CALL\n• Every Wednesday, we go live together\n• We learn, film, and publish as a community\n• It's not recorded (presence over perfection)\n• Link is always pinned in the Events channel\n• Why this matters: Doing it together makes it easier\n\nSTEP 3: ACCESS THE 5-DAY VIDEO WORKFLOW\n• Go to the Resources channel\n• Download the complete workflow guide\n• This is your roadmap from idea to published video\n• Why this matters: Systems beat motivation\n\nSTEP 4: SHARE YOUR FIRST VIDEO\n• Record something (anything) this week\n• Post it in the Wins channel\n• We celebrate ALL progress here\n• Why this matters: Action creates momentum\n\nWHAT MAKES THIS COMMUNITY DIFFERENT:\n\n🎬 HOLLYWOOD EXPERTISE, ZERO PRETENSE\n• I bring 20+ years of professional experience\n• But we apply it practically, not theoretically\n• Real techniques for real creators\n\n🤝 JUDGMENT-FREE ZONE\n• Your first video will be imperfect (everyone's is)\n• We celebrate progress, not perfection\n• This is a safe space to experiment\n\n⚡ IMPLEMENTATION OVER INFORMATION\n• Less talking about doing, more actually doing\n• Weekly accountability\n• Consistent practice in community\n\n🎯 RESULTS-FOCUSED\n• The goal isn't to feel confident someday\n• The goal is to publish consistently now\n• Confidence is the byproduct of action\n\nYOUR COMMITMENT:\n\nTo get the most from this community, commit to:\n• Show up weekly (even when it's hard)\n• Post at least one video per week\n• Support fellow members\n• Be imperfectly consistent\n\nMY COMMITMENT TO YOU:\n\n• I show up every week without fail\n• I respond to questions and posts\n• I share behind-the-scenes of my process\n• I create resources that actually help\n• I celebrate your wins like they're my own\n\nREMEMBER:\n\nYou didn't join this community to consume more content about camera confidence. You joined to actually build it.\n\nSo let's start right now. Head to Introductions and say hello. That's your first act of camera confidence—showing up and being seen.\n\nWelcome to the family. Your next take starts now.`
+            },
+            {
+                id: 12,
+                type: 'internal',
+                category: 'community',
+                title: 'Weekly Wins: Share Your Progress Here',
+                short: `This is your weekly wins thread! Share:\n\n✅ Videos you published (no matter how imperfect)\n✅ Mindset breakthroughs\n✅ Consistency milestones\n✅ Lessons learned\n\nProgress > Perfection. Always.\n\nRemember: Your "small" win might inspire someone else's breakthrough. Share it!\n\nI'll start: This week I published 3 videos and only deleted 2 takes total. Win!`,
+                long: `Welcome to our Weekly Wins thread! This is where we celebrate ALL progress, no matter how "small" it might seem to you.\n\nBecause here's the truth: There's no such thing as a small win when it comes to camera confidence. Every video published is a victory. Every time you hit record despite nerves is growth. Every take you don't delete is progress.\n\nWHAT TO SHARE HERE:\n\n📹 VIDEOS YOU PUBLISHED:\n• Drop the link\n• Tell us what you learned\n• Share what scared you about it\n• We'll cheer you on\n\n🧠 MINDSET BREAKTHROUGHS:\n• "I finally realized I don't need perfect lighting"\n• "I stopped comparing myself to other creators"\n• "I published without overthinking for the first time"\n• These mental shifts matter as much as the content\n\n🔥 CONSISTENCY MILESTONES:\n• First video published\n• 5 videos in a row\n• 30 days of showing up\n• First time filming in one take\n• Whatever consistency looks like for YOU\n\n📖 LESSONS LEARNED:\n• What worked that you'll do again\n• What didn't work that you'll adjust\n• Unexpected insights from the process\n• We all learn from each other\n\nWHY THIS MATTERS:\n\n1. ACCOUNTABILITY:\n• When you know you'll share here, you're more likely to follow through\n• Public commitment creates motivation\n• The community holds you accountable (gently)\n\n2. INSPIRATION:\n• Your win might be exactly what someone else needs to see today\n• Seeing others' progress normalizes the journey\n• We rise together\n\n3. MOMENTUM:\n• Celebrating wins creates more wins\n• What gets recognized gets repeated\n• Progress compounds when acknowledged\n\n4. PERSPECTIVE:\n• You'll see how far you've come\n• Week-to-week progress adds up fast\n• The journey becomes visible\n\nCOMMUNITY GUIDELINES FOR WINS:\n\n✅ DO:\n• Share genuinely (no humble-bragging)\n• Celebrate others' wins as loudly as your own\n• Be specific about what you did\n• Include what you learned\n\n❌ DON'T:\n• Compare your journey to others'\n• Downplay your progress with "it's not much"\n• Only share "perfect" wins\n• Forget that showing up IS a win\n\nEXAMPLES OF WINS WE CELEBRATE:\n\n• "I recorded a video and only deleted it 3 times instead of 47!" ✅\n• "I published even though I stumbled over words!" ✅\n• "I filmed in one take for the first time ever!" ✅\n• "I got my first comment from someone I helped!" ✅\n• "I showed up to the live call despite being terrified!" ✅\n• "I stopped waiting to feel ready and just hit record!" ✅\n\nMY WIN THIS WEEK:\n\nI published 3 videos and only deleted 2 takes total (down from my record of 47 deleted takes). One video got a comment from someone saying I helped them finally start their channel. That's why we do this.\n\nNOW IT'S YOUR TURN:\n\nWhat's your win this week? Drop it below. Even if it feels small. Especially if it feels small.\n\nBecause every single person in this community started exactly where you are right now. And every single one of us celebrates progress over perfection.\n\nYour wins matter. Share them.`
+            },
+            {
+                id: 13,
+                type: 'internal',
+                category: 'resources',
+                title: 'Your Complete 5-Day Video Workflow Guide',
+                short: `Here's your complete workflow from idea to published video:\n\nDAY 1: Idea clarity (30 min)\nDAY 2: Structure + talking points (30 min)\nDAY 3: Film (1-2 takes, 60 min)\nDAY 4: Edit (90 min max)\nDAY 5: Publish + engage (30 min)\n\nTotal: ~4 hours spread over 5 days\n\nDownload the full guide with templates in Resources. This is the same system I use for all my content.\n\nQuestions? Drop them below.`,
+                long: `This is your complete 5-Day Video Workflow—the exact system I use and teach to create consistent, quality content without burnout.\n\nAfter 20+ years on professional sets, I've refined this into a repeatable process that works whether you're creating your first video or your hundredth.\n\nTHE COMPLETE WORKFLOW:\n\nDAY 1: IDEA CLARITY (30 minutes)\n\nWhat you're doing:\n• Identifying your audience's biggest pain point this week\n• Choosing ONE topic to address\n• Validating that this serves your audience\n\nHow to do it:\n1. Review comments, DMs, or questions from your audience\n2. Look at your own recent challenges\n3. Choose the topic that serves the most people\n4. Write it down: "This video helps [audience] with [specific problem]"\n\nWhy this matters:\n• Clarity prevents overthinking later\n• Serving others reduces your anxiety\n• One focused topic > five scattered ideas\n\nDAY 2: STRUCTURE + TALKING POINTS (30 minutes)\n\nWhat you're doing:\n• Creating a simple structure (not a script)\n• Outlining 3-5 key points\n• Writing your hook and CTA\n\nHow to do it:\n1. Hook: One sentence that grabs attention\n2. Point 1, 2, 3 (sometimes 4-5): Core content\n3. CTA: What action you want them to take\n\nTemplate:\nHook: [The surprising truth/question/statement]\nPoint 1: [First key insight]\nPoint 2: [Second key insight]\nPoint 3: [Third key insight]\nCTA: [Clear next step]\n\nWhy this matters:\n• Structure without rigidity\n• Conversational, not scripted\n• Prepared but not robotic\n\nDAY 3: FILM DAY (60 minutes)\n\nWhat you're doing:\n• Recording your video (1-2 takes max)\n• Getting it done, not perfect\n\nHow to do it:\n1. Set up your space (5 min)\n2. Review your talking points (5 min)\n3. WARM-UP TAKE: Record once to shake out nerves (DELETE THIS)\n4. REAL TAKE: Hit record and trust your structure (15-20 min)\n5. Optional TAKE 2: Only if something went truly wrong\n6. Stop. You're done.\n\nWhy this matters:\n• Take 1-2 has the best energy\n• More takes = worse quality, not better\n• Perfection kills authenticity\n\nPRO TIP: If you mess up a word, just pause, collect yourself, and keep going. You'll edit out the pause later. Do NOT start over.\n\nDAY 4: EDIT WITH INTENTION (90 minutes max)\n\nWhat you're doing:\n• Cutting the fluff, keeping the gold\n• Making it watchable, not perfect\n\nHow to do it:\n1. Import footage (5 min)\n2. Delete the warm-up take\n3. Watch through once, mark obvious cuts (15 min)\n4. Make your cuts (20 min)\n5. Add captions for accessibility (20 min)\n6. Basic color/audio adjustment if needed (10 min)\n7. Create thumbnail (15 min)\n8. Export (5 min - let computer work while you do something else)\n\nWhy this matters:\n• Unlimited editing time = unlimited second-guessing\n• 90-minute cap forces decisive action\n• Done beats perfect\n\nPRO TIP: If you're stuck on whether to cut something, cut it. When in doubt, less is more.\n\nDAY 5: PUBLISH + ENGAGE (30 minutes)\n\nWhat you're doing:\n• Getting your video live\n• Starting the conversation\n\nHow to do it:\n1. Upload to platform (5 min)\n2. Write compelling caption (10 min)\n3. Publish (1 min)\n4. Share in community here (2 min)\n5. Respond to first comments (12 min)\n\nWhy this matters:\n• Publishing creates momentum\n• Early engagement boosts reach\n• Community accountability\n\nPRO TIP: The first hour after publishing is crucial. Be present in the comments. This is where connection happens.\n\nTOTAL TIME INVESTMENT:\n\nDay 1: 30 min\nDay 2: 30 min\nDay 3: 60 min\nDay 4: 90 min\nDay 5: 30 min\n\nTotal: 4 hours spread over 5 days for ONE complete video.\n\nCOMMON QUESTIONS:\n\n"Can I do it faster?"\nYes. Once you've done this 10 times, you can condense to 2-3 days. But start with the 5-day spread to build the habit.\n\n"What if I can't dedicate 5 days?"\nCondense, but keep the structure. The phases matter more than the timeline.\n\n"What if I need more editing time?"\nYou probably don't. You need better filming. Perfect your structure and filming, reduce editing needs.\n\n"Can I batch multiple videos?"\nOnce you're consistent with one per week, yes. But master the process first.\n\nDOWNLOAD THE COMPLETE GUIDE:\n\nHead to the Resources channel for:\n• Detailed day-by-day checklist\n• Editable templates for each phase\n• Common mistakes and how to avoid them\n• Video examples of the workflow in action\n\nYOUR ASSIGNMENT THIS WEEK:\n\nFollow this workflow exactly. Don't skip steps. Don't add extra. Just follow the system.\n\nThen share your published video in the Wins channel on Day 5.\n\nQuestions? Drop them below. I'll answer every single one.`
+            },
+            {
+                id: 14,
+                type: 'internal',
+                category: 'community',
+                title: 'Wednesday Live Call: What to Expect',
+                short: `Our weekly live calls are where the magic happens.\n\nWhat we do:\n• Quick teaching moment (10 min)\n• Live filming session (20 min)\n• Q&A and feedback (20 min)\n• Accountability check-ins (10 min)\n\nThis isn't a webinar. It's a working session. Bring your camera, your idea, and your willingness to be imperfect.\n\nWe film together, we publish together, we grow together.\n\nSee you Wednesday at 7pm ET!`,
+                long: `Our Wednesday live calls are the heartbeat of this community. This is where we don't just talk about camera confidence—we actually build it together in real time.\n\nAfter hundreds of calls and thousands of videos published by our members, I can tell you: This is where the transformation happens.\n\nWHAT TO EXPECT:\n\nTHE FORMAT (60 minutes total):\n\n🎬 TEACHING MOMENT (10 minutes):\n• One focused lesson on camera confidence, workflow, or mindset\n• Based on what the community is struggling with that week\n• Actionable, not theoretical\n• You can implement immediately\n\n📹 LIVE FILMING SESSION (20 minutes):\n• We literally film together\n• I'll give a prompt or framework\n• Everyone hits record at the same time\n• No overthinking, just doing\n• This is the game-changer\n\n💬 Q&A + FEEDBACK (20 minutes):\n• Bring your questions\n• Share what you're stuck on\n• Get direct feedback from me\n• Learn from others' questions\n• Real-time problem solving\n\n✅ ACCOUNTABILITY CHECK-INS (10 minutes):\n• Share what you published this week\n• Commit to what you'll publish next week\n• Group energy creates momentum\n• We celebrate wins together\n\nWHY THESE CALLS WORK:\n\n1. DOING IT TOGETHER REMOVES THE FEAR:\n• You're not alone in front of the camera\n• Everyone hits record at the same time\n• The group energy carries you through\n• Fear divides by community\n\n2. LIVE = NO PERFECTION:\n• Can't edit a live call\n• Embraces imperfection by design\n• Models the energy we want you to have\n• Shows you it's safe to be human\n\n3. REAL-TIME FEEDBACK:\n• You get answers immediately\n• No waiting, no guessing\n• We solve problems together\n• Faster progress through direct guidance\n\n4. ACCOUNTABILITY WITHOUT PRESSURE:\n• Knowing you'll show up weekly keeps you consistent\n• Gentle pressure, not harsh judgment\n• The group wants you to succeed\n• Positive peer pressure works\n\nHOW TO PREPARE:\n\n30 MINUTES BEFORE:\n• Review the week's prompt (posted Monday)\n• Jot down 3-5 talking points\n• Set up your filming space\n• Test your audio/video\n\n5 MINUTES BEFORE:\n• Join the call\n• Say hello in chat\n• Get your camera ready\n• Take a deep breath\n\nDURING THE CALL:\n• Participate in chat\n• Film when we film together\n• Ask your questions\n• Support others\n\nAFTER THE CALL:\n• Edit your video (remember: 90 min max)\n• Publish within 48 hours\n• Share in Wins channel\n• Engage with other members' posts\n\nCALL ETIQUETTE:\n\n✅ DO:\n• Show up on camera (even if nervous)\n• Participate in the live filming\n• Ask questions in chat\n• Support fellow members\n• Be present and engaged\n\n❌ DON'T:\n• Lurk without participating\n• Judge others' imperfections\n• Promote your own products/services\n• Expect private coaching (use Q&A time)\n\nWHAT MEMBERS SAY:\n\n"The live filming changed everything. Knowing I wasn't alone made it possible to hit record." - Sarah\n\n"I went from never publishing to weekly videos just from the Wednesday calls." - Marcus\n\n"The accountability is gentle but effective. I don't want to show up empty-handed." - Jennifer\n\nFAQs:\n\n"What if I can't make it live?"\nTry your best to be there live. The energy is different. But life happens—catch the replay in the Replays channel.\n\n"Do I have to be on camera?"\nYes. That's the point. This is where you practice. Start with just your voice if needed, but work toward being visible.\n\n"What if I'm too nervous to film during the call?"\nFilm anyway. Nobody's watching you film. We're all focused on our own screens. The nerves are normal.\n\n"Can I bring a friend?"\nMembers only. This is a safe container. Invite them to join the community.\n\n"What if I miss a week?"\nNo problem. Just jump back in next week. No guilt, just get back to it.\n\nTHIS WEEK'S PROMPT:\n\n(Posted every Monday in the Events channel)\n\nMARK YOUR CALENDAR:\n\nEvery Wednesday, 7pm ET\nLink posted in Events channel\nSet a reminder NOW\n\nREMEMBER:\n\nThis call isn't about learning more. It's about doing more.\n\nYou can watch YouTube videos about camera confidence forever. Or you can show up Wednesday and actually build it.\n\nThe choice is yours. I'll be there either way.\n\nSee you on the call. Camera on. Ready to grow.`
+            },
+            {
+                id: 15,
+                type: 'internal',
+                category: 'resources',
+                title: 'Behind the Scenes: How I Actually Film My Content',
+                short: `You asked, here's exactly how I film:\n\nSETUP:\n• iPhone 13 on a $15 phone tripod\n• Natural window light (no ring light)\n• Corner of my home office\n• $20 lapel mic when needed\n\nPROCESS:\n• Review talking points (5 min)\n• One warm-up take (delete)\n• One real take (keep)\n• Edit for 60-90 min\n• Publish\n\nTotal cost beyond phone: $35\nTotal time: 2-3 hours\n\nYou don't need more. You need to start.`,
+                long: `I get asked constantly: "What's your setup? What equipment do you use? How do you actually film your content?"\n\nSo here's complete transparency. My actual setup, my actual process, the real behind-the-scenes of how I create content.\n\nSpoiler: It's way simpler than you think.\n\nMY ACTUAL EQUIPMENT:\n\nCAMERA:\n• iPhone 13 (not even the latest model)\n• Why: 4K quality, I already own it, it works\n• Cost: $0 (already had it)\n\nTRIPOD:\n• Cheap phone tripod from Amazon\n• Brand doesn't matter, just needs to be stable\n• Cost: $15\n\nLIGHTING:\n• Natural window light (my home office has a big window)\n• I film during the day when possible\n• Overcast days = the best lighting\n• Cost: $0\n\nMICROPHONE:\n• Usually just iPhone mic (it's better than you think)\n• Sometimes: $20 lapel mic from Amazon\n• Use lapel mic when: AC is loud, outside noise, echoey room\n• Cost: $20 (optional)\n\nBACKDROP:\n• Corner of my home office\n• Bookshelf in background (shows personality)\n• Sometimes just a clean wall\n• Cost: $0\n\nEDITING SOFTWARE:\n• iMovie (comes free with Mac)\n• Sometimes CapCut (free)\n• Nothing fancy, nothing expensive\n• Cost: $0\n\nTOTAL EQUIPMENT INVESTMENT: $35 beyond the phone I already owned\n\nMY ACTUAL FILMING PROCESS:\n\nPREP (5-10 minutes):\n\n1. Review my talking points from Day 2 of the workflow\n2. Set up my phone on the tripod at eye level\n3. Check framing (rule of thirds, little headroom)\n4. Do a test recording to check audio\n5. Turn on Do Not Disturb\n6. Close the door\n7. Take 3 deep breaths\n\nWARM-UP TAKE (5-7 minutes):\n\n8. Hit record\n9. Say whatever comes to mind about my topic\n10. Don't worry if it's bad—this is just to shake out nerves\n11. Stop recording\n12. DELETE THIS TAKE (important!)\n13. Shake out my body, roll my shoulders\n14. Remind myself: "Serve, don't perform"\n\nREAL TAKE (10-20 minutes):\n\n15. Hit record\n16. Take one breath\n17. Start with my hook\n18. Work through my talking points conversationally\n19. If I mess up: Pause, collect myself, continue (do NOT start over)\n20. Finish with my CTA\n21. Stop recording\n22. DO NOT watch it back yet\n23. Trust the process\n\nOptional TAKE 2 (only if needed):\n\n24. Only do Take 2 if: Technical failure, completely lost my train of thought, or something interrupted\n25. NOT for: Stumbled on a word, wasn't perfect, didn't like my energy\n26. Take 2 gets worse, not better—trust Take 1\n\nEDITING (60-90 minutes):\n\n27. Import to editing software\n28. Watch through once\n29. Mark obvious cuts (long pauses, mistakes, tangents)\n30. Make the cuts\n31. Add captions (accessibility + engagement)\n32. Basic audio adjustment if needed\n33. Export\n34. Create thumbnail\n35. Done\n\nWHAT I DON'T DO:\n\n❌ Multiple camera angles\n❌ B-roll footage\n❌ Fancy transitions\n❌ Color grading\n❌ Advanced audio mixing\n❌ Green screen\n❌ Any special effects\n\nWhy? Because none of that matters for the content I create. My audience cares about the message, not the production value.\n\nTIME BREAKDOWN:\n\nTotal filming time: 20-30 minutes\nTotal editing time: 60-90 minutes\nTotal time: 2-3 hours for one complete video\n\nWHAT I'VE LEARNED:\n\n1. NATURAL LIGHT > EXPENSIVE LIGHTS:\nWindow light is softer, more flattering, and free. I film between 10am-3pm when possible.\n\n2. ONE GOOD TAKE > TEN MEDIOCRE TAKES:\nThe energy in Take 1 or 2 is always better. After that, you're overthinking.\n\n3. PHONE MIC IS USUALLY ENOUGH:\nUnless you have serious background noise, your phone mic works. Clear audio matters, but perfection doesn't.\n\n4. EDIT LESS, FILM BETTER:\nThe better your structure and filming, the less editing you need. Invest in preparation, save time in post.\n\n5. SIMPLICITY SCALES:\nThis simple setup works for one video or one hundred. It's sustainable because it's not complicated.\n\nCOMMON MISTAKES I MADE (So you don't have to):\n\n❌ Waiting for perfect lighting conditions\n✅ Film with what you have, when you planned to\n\n❌ Doing 10+ takes trying to get it perfect\n✅ One warm-up (delete), one real take (keep)\n\n❌ Spending hours on fancy editing\n✅ Simple cuts, captions, done\n\n❌ Comparing my setup to big creators\n✅ Remember: They started with a phone too\n\nTHE POINT:\n\nYou don't need:\n• Expensive camera\n• Ring light\n• Professional backdrop\n• Fancy software\n\nYou need:\n• A phone\n• Something to prop it up\n• Natural light or basic lighting\n• Your message\n• The willingness to hit record\n\nI've filmed content that reached hundreds of thousands of people with this exact setup. Because people connect with people, not production value.\n\nYour turn. What's your current setup? Share below.`
+            },
+            {
+                id: 16,
+                type: 'internal',
+                category: 'accountability',
+                title: 'Accountability Partners: Find Your Video Buddy',
+                short: `Want to publish more consistently? Find an accountability partner.\n\nHow it works:\n• Partner up with someone here\n• Share your weekly video plan\n• Check in with each other\n• Celebrate wins together\n\nComment below:\n• Your name\n• Your content focus\n• Your publishing goal\n\nI'll help match people. Accountability makes consistency 10x easier.`,
+                long: `One of the biggest predictors of success in building camera confidence? Having an accountability partner.\n\nNot because you need someone to force you. But because going through this journey with someone makes it feel less lonely, more achievable, and way more fun.\n\nHere's how to find your video accountability buddy in this community.\n\nWHY ACCOUNTABILITY PARTNERS WORK:\n\n1. MUTUAL COMMITMENT:\n• When you commit to someone else, you follow through\n• You show up for them, even when you don't feel like showing up for yourself\n• Peer pressure, but the good kind\n\n2. SHARED STRUGGLE:\n• They get it because they're doing it too\n• No explaining why it's hard\n• Instant understanding and support\n\n3. CELEBRATION:\n• Wins feel better when someone who understands celebrates with you\n• Progress gets acknowledged immediately\n• Momentum builds faster\n\n4. PERSPECTIVE:\n• When you're stuck, they often see what you can't\n• Fresh eyes on your content\n• Different strengths complement each other\n\nHOW TO FIND YOUR PARTNER:\n\nSTEP 1: POST YOUR PROFILE BELOW\n\nComment with:\n• Your name\n• What kind of content you create (or want to create)\n• Your current publishing frequency\n• Your goal frequency (be realistic)\n• What you need support with most\n\nExample:\n"Hi, I'm Sarah. I create content about sustainable living. Currently publishing once a month, goal is weekly. I need help with consistency and not overthinking my takes."\n\nSTEP 2: CONNECT WITH MATCHES\n\n• Read through other profiles\n• Look for: Similar goals, complementary struggles, good energy\n• Don't worry about identical niches—shared commitment matters more\n• Reach out via DM\n\nSTEP 3: SET UP YOUR PARTNERSHIP\n\nDiscuss:\n• How often will you check in? (Recommendation: Weekly)\n• What format? (DM, scheduled call, voice memo?)\n• What do you each need? (Gentle push? Honest feedback? Just presence?)\n• How long is the commitment? (Recommendation: 90 days minimum)\n\nHOW TO MAKE IT WORK:\n\nYOUR WEEKLY CHECK-IN STRUCTURE:\n\nMONDAY:\n• Share what you're filming this week\n• Share any concerns or resistance\n• Get each other's input if needed\n\nWEDNESDAY:\n• Quick mid-week check: "Did you film yet?"\n• If yes: Celebrate\n• If no: Gentle accountability, no judgment\n\nFRIDAY:\n• Share your published video\n• Give each other feedback\n• Celebrate the win\n• Plan next week\n\nTHE PARTNERSHIP AGREEMENT:\n\nBoth partners agree to:\n\n✅ Show up consistently (even when we don't feel like it)\n✅ Be honest about struggles (no faking it)\n✅ Give honest feedback (kind but truthful)\n✅ Celebrate wins (yours and mine equally)\n✅ Hold space without fixing (sometimes we just need to vent)\n✅ Respect boundaries (no guilt trips, no pressure)\n✅ Communicate clearly (if something's not working, say so)\n\nWHAT MAKES A GOOD ACCOUNTABILITY PARTNER:\n\n✅ Similar commitment level (both serious about this)\n✅ Complementary energy (one planner, one spontaneous can work)\n✅ Honest communication style\n✅ Celebrates others' wins genuinely\n✅ Shows up consistently\n✅ Gives feedback kindly\n\n❌ What to avoid:\n• Someone much further ahead (creates comparison)\n• Someone who disappears (breaks trust)\n• Someone who judges (kills safety)\n• Someone who competes (creates tension)\n\nSUCCESS STORIES:\n\n"My accountability partner and I went from posting once a month to posting weekly. We've both published 12 videos in the last 3 months. I wouldn't have done it alone." - Marcus\n\n"Having someone who gets it makes all the difference. When I want to delete everything, she reminds me why I'm doing this." - Jennifer\n\n"We do our Wednesday filming together over Zoom. Just being on camera with someone else removes so much fear." - David\n\nTROUBLESHOOTING:\n\n"What if my partner isn't showing up?"\nHave an honest conversation. If it doesn't improve, find a new partner. Your commitment to yourself matters most.\n\n"What if we have different goals?"\nThat's okay. You can support each other without identical goals. Focus on the shared value of consistency.\n\n"What if I'm more advanced?"\nYou can still partner with someone newer. Teaching reinforces your own learning. Plus, they might see things you're too close to notice.\n\n"What if we're in different time zones?"\nAsync communication works great. Voice memos, DMs, etc.\n\nSTART NOW:\n\nPost your profile below. I'll personally help match people who seem like good fits.\n\nYour accountability partner might be reading this right now. Waiting for you to take the first step.\n\nComment below. Let's find your video buddy.\n\nYour camera confidence journey just got easier.`
+            },
+            {
+                id: 17,
+                type: 'internal',
+                category: 'resources',
+                title: 'Video Troubleshooting: Common Problems and Quick Fixes',
+                short: `Having technical issues? Here are quick fixes:\n\nSHAKY VIDEO: Use a tripod or prop phone on books\nBAD AUDIO: Record in quiet room, use $20 lapel mic\nDARK VIDEO: Film near window, face the light\nAWKWARD FRAMING: Camera at eye level, not below\nFILE TOO BIG: Change settings to 1080p instead of 4K\n\nMore issues? Drop them below. I'll troubleshoot with you.`,
+                long: `Let's solve your technical problems right now. After 20+ years on professional sets and helping hundreds of creators, I've seen (and solved) every technical issue imaginable.\n\nHere's your troubleshooting guide for the most common problems.\n\nPROBLEM 1: SHAKY, UNSTABLE VIDEO\n\nWhat's happening:\n• Holding phone while filming\n• Propping phone on unstable surface\n• Moving while recording\n\nThe fix:\n• Get a basic tripod ($15-20)\n• Or: Stack books and prop phone against them\n• Or: Use a shelf or table (test stability first)\n• Keep camera completely still\n\nWhy it matters:\n• Shaky footage = unwatchable\n• Viewers get motion sick\n• Looks unprofessional\n\nPROBLEM 2: BAD AUDIO\n\nWhat's happening:\n• Too much background noise\n• Echo/reverb in the room\n• You're too far from the mic\n• AC/heating running\n\nThe fix:\n• Record in a quieter room\n• Turn off AC/heating during filming\n• Get closer to the mic (2-3 feet max)\n• Use a $20 lapel mic if needed\n• Film in a room with soft furnishings (absorbs sound)\n• Close windows\n\nWhy it matters:\n• People tolerate bad video\n• Nobody tolerates bad audio\n• Audio is 50% of the experience\n\nPROBLEM 3: TOO DARK / BAD LIGHTING\n\nWhat's happening:\n• Filming with light behind you (backlit)\n• No natural light source\n• Filming at wrong time of day\n• Overhead lighting only\n\nThe fix:\n• Film near a window\n• FACE the window (light on your face)\n• Film between 10am-3pm for best natural light\n• Overcast days = perfect lighting\n• If no window: $20 ring light\n• Avoid overhead lights only\n\nWhy it matters:\n• Dark video = people can't see you\n• Seeing you = connection and trust\n• Light affects how your message lands\n\nPROBLEM 4: AWKWARD FRAMING\n\nWhat's happening:\n• Camera too low (looking down at you)\n• Camera too high (looking down on viewers)\n• Too close or too far\n• Not centered\n\nThe fix:\n• Camera at eye level or slightly above\n• Position your eyes in the top third of frame\n• Leave a little space above your head (not much)\n• Center yourself in the frame\n• Use grid lines on phone to help\n\nWhy it matters:\n• Bad framing = distracting\n• Eye level = respectful and engaging\n• Professional look without professional equipment\n\nPROBLEM 5: FILE SIZE TOO LARGE\n\nWhat's happening:\n• Recording in 4K\n• Long videos\n• Can't upload or send\n\nThe fix:\n• Change phone settings to 1080p (HD)\n• 1080p is plenty for online content\n• Compress file if needed (free tools: HandBrake)\n• Trim unnecessary footage before exporting\n\nWhy it matters:\n• Easier to upload\n• Faster editing\n• Viewers mostly watch on phones anyway\n\nPROBLEM 6: LOOKS WASHED OUT / WEIRD COLORS\n\nWhat's happening:\n• Wrong white balance\n• Mixed light sources\n• Camera's auto settings struggling\n\nThe fix:\n• Use one light source type (all natural or all artificial)\n• Tap your face on phone screen before recording (sets exposure)\n• Don't mix window light + overhead lights\n• If needed: Slight color correction in editing\n\nWhy it matters:\n• Color affects mood and professionalism\n• Skin tones looking natural = trust\n\nPROBLEM 7: YOU KEEP LOOKING AWAY\n\nWhat's happening:\n• Reading notes off-screen\n• Checking yourself in preview\n• Distracted by notifications\n\nThe fix:\n• Put phone in Do Not Disturb\n• Memorize 3 bullet points, not a script\n• Look at the camera lens, not the screen\n• Put notes right next to camera if needed\n• Practice looking at lens until it feels natural\n\nWhy it matters:\n• Eye contact = connection\n• Looking away = disconnection\n• Viewers need to feel seen\n\nPROBLEM 8: BACKGROUND IS DISTRACTING\n\nWhat's happening:\n• Messy room visible\n• Too much clutter\n• Movement behind you\n• Strange objects in frame\n\nThe fix:\n• Film in corner of room (less visible)\n• Clean just what's in frame\n• Blur background if phone has portrait mode\n• Simple backdrop: Bookshelf, plant, clean wall\n• Make sure nothing weird is behind you\n\nWhy it matters:\n• Background competes for attention\n• Simple background = focus on you\n• Clean doesn't mean sterile\n\nPROBLEM 9: CAN'T HEAR YOU OVER MUSIC/INTRO\n\nWhat's happening:\n• Background music too loud\n• Intro music drowning out voice\n• Poor audio mixing\n\nThe fix:\n• Lower background music to 10-20% volume\n• Your voice should be 80-90% volume\n• If using intro music: Fade it out quickly\n• Test audio levels before exporting\n\nWhy it matters:\n• Message > music\n• Viewers leave if they can't hear\n• Accessibility matters\n\nPROBLEM 10: VIDEO LOOKS PIXELATED / LOW QUALITY\n\nWhat's happening:\n• Uploaded compressed version\n• Exported at low quality\n• Platform compressed it further\n\nThe fix:\n• Export at highest quality your editing software allows\n• Upload to platform immediately (don't text it first)\n• Direct upload, not through messaging apps\n• Check export settings (1080p minimum)\n\nWhy it matters:\n• Quality shows you care\n• Too low quality = unwatchable\n• Platform compression happens anyway\n\nQUICK DIAGNOSTIC CHECKLIST:\n\nBefore filming, check:\n☐ Camera stable?\n☐ Audio tested?\n☐ Light on face?\n☐ Camera at eye level?\n☐ Background clean?\n☐ Phone in Do Not Disturb?\n☐ Looking at lens?\n☐ File format set to 1080p?\n\nSTILL STUCK?\n\nDrop your specific issue below with:\n• What's happening\n• What you've tried\n• Screenshots or video if possible\n\nI'll troubleshoot with you personally.\n\nNo problem is too small. Let's fix it together.`
+            },
+            {
+                id: 18,
+                type: 'internal',
+                category: 'transformation',
+                title: 'Member Success Stories: Real Transformations',
+                short: `Meet our members who went from camera-shy to confident:\n\nSARAH: 0 videos → 12 in 3 months\nMARCUS: Deleted everything → Publishing weekly\nJENNIFER: 6 hours per video → 2 hours\nDAVID: Terrified on camera → Leading live workshops\n\nWhat they all have in common:\n• Started imperfectly\n• Showed up consistently\n• Used the 5-day workflow\n• Engaged with community\n\nYour transformation starts with one video. When will you publish yours?`,
+                long: `Nothing motivates like seeing real people achieve real results. These are actual members of our community who transformed their camera confidence.\n\nThese aren't influencers or professional creators. They're people just like you who decided to show up consistently despite the fear.\n\nSTORY 1: SARAH - From Frozen to Flowing\n\nBEFORE:\n• Spent 8 months "getting ready" to start\n• Recorded 47 takes, deleted all of them\n• Had valuable expertise but nobody knew\n• Watched others succeed while she stayed stuck\n• Convinced she "wasn't a camera person"\n\nWHAT SHIFTED:\n• Joined the community and committed to 90 days\n• Used the 5-day workflow exactly as written\n• Published her first video (imperfect, terrified, did it anyway)\n• Found an accountability partner\n• Showed up to every Wednesday call\n\nAFTER (3 months):\n• 12 videos published\n• Growing audience asking for more\n• Confidence she can feel\n• First client from video content\n• Now helps others get started\n\nSarah's words: "I wasn't magically confident. I just kept showing up until it felt normal. The community made it possible."\n\nSTORY 2: MARCUS - From Deletion to Devotion\n\nBEFORE:\n• Professional in his field for 10+ years\n• Knew he needed video but couldn't commit\n• Would record, watch it back, hate it, delete\n• Comparison paralysis (everyone else seemed better)\n• Posted maybe 1 video every 3 months\n\nWHAT SHIFTED:\n• Made a public commitment in the community\n• Stopped watching videos back before publishing\n• Used the "one warm-up, one real take" method\n• Started seeing video as service, not performance\n• Let the community celebrate his imperfect progress\n\nAFTER (4 months):\n• Publishing weekly without fail\n• Videos getting better engagement than "perfect" competitors\n• Built a system he can maintain\n• Gained 400+ followers from consistent video\n• Feels like himself on camera now\n\nMarcus's words: "The shift happened when I stopped trying to impress and started trying to serve. The community reminded me of that every week."\n\nSTORY 3: JENNIFER - From Hours to Systems\n\nBEFORE:\n• Spent 6-8 hours on a single video\n• Perfectionism made her miserable\n• Editing and re-editing endlessly\n• Dreaded video creation\n• Burned out before building momentum\n\nWHAT SHIFTED:\n• Implemented the 5-day workflow\n• Set 90-minute editing time limit\n• Embraced "done beats perfect"\n• Found accountability partner for timing\n• Learned to trust her first takes\n\nAFTER (2 months):\n• Creates videos in 2-3 hours total\n• Publishes more consistently\n• Less stress, more impact\n• Actually enjoys the process now\n• Time saved allows more content creation\n\nJennifer's words: "I thought more time meant better quality. Turns out, constraints made me better, not worse."\n\nSTORY 4: DAVID - From Terrified to Teaching\n\nBEFORE:\n• Extreme camera anxiety\n• Would literally shake on camera\n• Avoided any video work for years\n• Lost opportunities because of fear\n• Felt like a fraud hiding his expertise\n\nWHAT SHIFTED:\n• Started with audio-only content\n• Gradually added camera presence\n• Wednesday calls gave him safe practice space\n• Focused on message, not appearance\n• Community support reduced isolation\n\nAFTER (6 months):\n• Leads live video workshops\n• Camera anxiety reduced by 90%\n• Teaching others his field via video\n• Building a course with video lessons\n• Comfortable being seen\n\nDavid's words: "I never thought I'd be comfortable on camera. Turns out, I just needed the right support and a system that worked with my anxiety, not against it."\n\nSTORY 5: RACHEL - From Overthinking to Action\n\nBEFORE:\n• Analysis paralysis for months\n• Researched equipment endlessly\n• Took courses but never published\n• Perfect plan, zero execution\n• Fear disguised as "preparation"\n\nWHAT SHIFTED:\n• Realized planning was procrastination\n• Committed to publishing before feeling ready\n• Used phone camera (nothing fancy)\n• Accountability partner wouldn't let her hide\n• Embraced imperfect action\n\nAFTER (90 days):\n• 15 videos published (phone camera only)\n• First paid client from video\n• Stopped researching, started doing\n• Built confidence through repetition\n• Helps other overthinkers now\n\nRachel's words: "I wasted 6 months planning. I gained confidence in 6 weeks doing. Action was always the answer."\n\nSTORY 6: MICHAEL - From Corporate to Creative\n\nBEFORE:\n• Corporate background (very "professional")\n• Stiff on camera, too formal\n• Afraid to show personality\n• Videos felt like presentations\n• No authentic connection with audience\n\nWHAT SHIFTED:\n• Learned to separate professional from robotic\n• Permission to be human on camera\n• Energy management training from Wednesday calls\n• Watched his own videos with new eyes\n• Allowed himself to relax\n\nAFTER (3 months):\n• Conversational, authentic presence\n• Engagement tripled\n• People comment on his relatability\n• Enjoys filming now\n• Personality shines through\n\nMichael's words: "I thought professional meant perfect and polished. Turns out, professional just means serving your audience well. And they need the real me, not a robot."\n\nCOMMON THREADS:\n\nEvery success story shares:\n1. Started before feeling ready\n2. Used the 5-day workflow\n3. Found accountability (partner or community)\n4. Published imperfectly\n5. Showed up consistently\n6. Focused on service over performance\n7. Celebrated small wins\n8. Didn't quit when it was hard\n\nNONE OF THEM:\n• Waited for perfect equipment\n• Felt confident from day one\n• Had natural talent\n• Posted only perfect content\n• Did it alone\n\nYOUR TRANSFORMATION STARTS NOW:\n\nYou could be the next success story.\n\nThe question is: Will you start?\n\nPublish your first video this week. Share it in the Wins channel. Let us celebrate with you.\n\nYour story is already being written. What will Chapter 1 say?`
+            },
+            {
+                id: 19,
+                type: 'internal',
+                category: 'community',
+                title: 'Community Guidelines: How We Show Up for Each Other',
+                short: `Our community thrives because we all commit to:\n\n✅ Support over competition\n✅ Honest feedback with kindness\n✅ Celebrate all progress\n✅ No judgment of imperfection\n✅ Show up consistently\n✅ Give before asking\n\nWhat we don't do:\n❌ Promote our products in comments\n❌ Compare our journey to others\n❌ Judge or criticize\n❌ Ghost our accountability partners\n\nWe rise together. Let's keep it that way.`,
+                long: `This community works because we've built a culture of genuine support, honest feedback, and authentic connection.\n\nAfter seeing what works (and what doesn't) in dozens of communities, here's how we maintain the magic here.\n\nOUR CORE VALUES:\n\n1. SUPPORT OVER COMPETITION\n\nWhat this means:\n• We celebrate others' wins as loudly as our own\n• Someone else's success doesn't diminish yours\n• We collaborate, not compete\n• There's room for everyone\n\nWhat this looks like:\n• Genuinely congratulating members on their progress\n• Sharing resources freely\n• Asking "How can I help?" not "What's in it for me?"\n• Building each other up\n\n2. HONEST FEEDBACK WITH KINDNESS\n\nWhat this means:\n• We tell the truth, but we do it kindly\n• Sugar-coating doesn't help anyone\n• Brutal honesty without compassion is just brutal\n• Feedback serves the person, not our ego\n\nWhat this looks like:\n• "Here's what worked: [specific]. Here's one thing to consider: [specific]."\n• Ask permission before giving feedback\n• Focus on the work, not the person\n• Offer solutions, not just criticism\n\n3. CELEBRATE ALL PROGRESS\n\nWhat this means:\n• Progress isn't linear\n• Small wins matter\n• Every published video is a victory\n• We don't compare timelines\n\nWhat this looks like:\n• Commenting on others' wins\n• Using the Wins channel actively\n• Acknowledging effort, not just results\n• No "that's nothing" energy ever\n\n4. NO JUDGMENT OF IMPERFECTION\n\nWhat this means:\n• Imperfection is expected and welcomed\n• We're all learning\n• There's no "should be better by now"\n• Vulnerability is strength\n\nWhat this looks like:\n• Never mocking mistakes\n• Sharing our own imperfect content\n• Creating safety for experimentation\n• "Me too" over "You should"\n\n5. SHOW UP CONSISTENTLY\n\nWhat this means:\n• Consistency matters more than intensity\n• We commit to the long game\n• Regular presence builds trust\n• The community is strengthened by showing up\n\nWhat this looks like:\n• Wednesday calls when possible\n• Regular engagement in threads\n• Supporting accountability partners\n• Not disappearing without communication\n\n6. GIVE BEFORE ASKING\n\nWhat this means:\n• Contribute to the community\n• Don't just consume\n• Build relationship before making requests\n• Generosity first\n\nWhat this looks like:\n• Comment on others' posts before posting your own\n• Answer questions when you can\n• Share what's working for you\n• Offer value without expecting return\n\nWHAT WE DON'T DO:\n\n❌ PROMOTE PRODUCTS/SERVICES IN COMMENTS:\n• This is a learning community, not a marketplace\n• No unsolicited DMs selling your stuff\n• If asked directly, you can share resources\n• Focus on serving, not selling\n\n❌ COMPARE JOURNEYS:\n• Your timeline is yours\n• Their progress doesn't mean you're behind\n• Comparison kills creativity\n• Stay in your lane, celebrate theirs\n\n❌ JUDGE OR CRITICIZE:\n• No shaming anyone's equipment, setup, or content\n• No "you should have..." comments\n• We build up, not tear down\n• Kindness always\n\n❌ GHOST ACCOUNTABILITY PARTNERS:\n• If you commit to someone, honor it\n• Life happens - communicate\n• Don't disappear without explanation\n• Respect others' investment in you\n\n❌ LURK WITHOUT PARTICIPATING:\n• This isn't a spectator sport\n• Your participation makes the community valuable\n• You get out what you put in\n• Engagement required, not optional\n\nHOW TO HANDLE CONFLICTS:\n\n1. ASSUME POSITIVE INTENT:\n• Most misunderstandings aren't malicious\n• Give benefit of the doubt\n• Ask for clarification before reacting\n\n2. ADDRESS DIRECTLY:\n• DM the person if something bothered you\n• Keep it private unless it's a pattern\n• Focus on specific behavior, not character\n\n3. INVOLVE ME IF NEEDED:\n• If direct conversation doesn't resolve it\n• If someone violates community guidelines repeatedly\n• I'll mediate fairly\n\nWHEN YOU NEED SUPPORT:\n\n✅ DO:\n• Ask specific questions\n• Share what you've tried\n• Be open to feedback\n• Update us on progress\n\n❌ DON'T:\n• Expect others to do the work for you\n• Ask the same question without implementing answers\n• Dismiss all suggestions\n• Take without giving back\n\nREPORTING ISSUES:\n\nIf someone:\n• Violates guidelines repeatedly\n• Makes you feel unsafe\n• Spams or promotes inappropriately\n• Treats others poorly\n\nDM me directly with:\n• What happened (specific examples)\n• When it happened\n• How it impacted you or others\n\nI take community culture seriously and will address it.\n\nOUR PROMISE TO YOU:\n\nI (Elfina) promise to:\n• Model these guidelines in everything I do\n• Hold space for your growth\n• Address violations fairly and quickly\n• Keep improving this community\n• Show up consistently\n• Care about your success\n\nYOUR PROMISE TO THE COMMUNITY:\n\nBy being here, you commit to:\n• Following these guidelines\n• Supporting fellow members\n• Showing up authentically\n• Contributing value\n• Honoring the culture we're building together\n\nTOGETHER, WE RISE:\n\nThis community is special because of how we show up for each other.\n\nYour participation matters. Your wins matter. Your struggles matter. You matter.\n\nLet's keep building something beautiful together.\n\nQuestions about guidelines? Drop them below.`
+            },
+            {
+                id: 20,
+                type: 'internal',
+                category: 'resources',
+                title: 'Resource Library: Everything You Need in One Place',
+                short: `All your resources in one place:\n\n📘 5-Day Video Workflow (complete guide)\n🎬 Equipment recommendations ($35 starter setup)\n✅ Pre-filming checklist\n🎯 Topic idea generator\n📝 Video structure templates\n🎨 Thumbnail creation guide\n📊 Analytics tracking sheet\n🤝 Accountability partner agreement\n\nBookmark this thread. Everything you need is here.\n\nNew resources added monthly based on your feedback.`,
+                long: `Everything you need to build camera confidence and publish consistently, all in one place.\n\nBookmark this thread and come back whenever you need a resource.\n\nCORE WORKFLOWS & GUIDES:\n\n📘 5-DAY VIDEO WORKFLOW (Complete System)\n• Step-by-step process from idea to published video\n• Day-by-day breakdown with time estimates\n• Editable templates for each phase\n• Common mistakes and how to avoid them\n• Download: [Link in Files section]\n\n📋 PRE-FILMING CHECKLIST\n• Everything to check before hitting record\n• Technical setup verification\n• Mindset preparation steps\n• 5-minute quick-check version\n• Download: [Link in Files section]\n\n🎬 POST-FILMING CHECKLIST\n• Editing workflow steps\n• Export settings for each platform\n• Publishing best practices\n• Engagement strategy\n• Download: [Link in Files section]\n\nEQUIPMENT & SETUP:\n\n🎥 STARTER SETUP ($35)\n• Phone tripod recommendation\n• Lapel mic options\n• Lighting alternatives\n• Backdrop ideas\n• Where to buy everything\n• Download: [Link in Files section]\n\n🎥 UPGRADE PATH (When You're Ready)\n• What to upgrade first\n• What to upgrade last\n• What never to upgrade\n• Budget-friendly options at each level\n• Download: [Link in Files section]\n\n💡 LIGHTING GUIDE\n• Natural light setup diagrams\n• Window positioning\n• Budget lighting options\n• Troubleshooting dark videos\n• Download: [Link in Files section]\n\nCONTENT CREATION:\n\n🎯 TOPIC IDEA GENERATOR\n• 50+ proven video topics\n• Audience pain point framework\n• Content calendar template\n• Never run out of ideas again\n• Download: [Link in Files section]\n\n📝 VIDEO STRUCTURE TEMPLATES\n• Hook-Content-CTA framework\n• Teaching video template\n• Story video template\n• Announcement template\n• Problem-solution template\n• Download: [Link in Files section]\n\n🎤 SCRIPTING VS. TALKING POINTS\n• When to script vs. when to outline\n• How to create talking points\n• Conversational delivery tips\n• Script templates if you need them\n• Download: [Link in Files section]\n\nEDITING & POST-PRODUCTION:\n\n✂️ EDITING SHORTCUTS\n• Platform-specific editing tips\n• iMovie quick guide\n• CapCut essentials\n• 90-minute editing challenge\n• Download: [Link in Files section]\n\n📝 CAPTION CREATION\n• Why captions matter\n• Free captioning tools\n• Accessibility best practices\n• Download: [Link in Files section]\n\n🎨 THUMBNAIL CREATION GUIDE\n• Canva templates\n• Psychology of click-worthy thumbnails\n• What to avoid\n• Mobile optimization\n• Download: [Link in Files section]\n\nPUBLISHING & GROWTH:\n\n📱 PLATFORM-SPECIFIC GUIDES\n• YouTube best practices\n• Instagram video optimization\n• LinkedIn video strategy\n• TikTok for business\n• Facebook video tips\n• Download: [Link in Files section]\n\n📊 ANALYTICS TRACKING SHEET\n• What metrics actually matter\n• Monthly tracking template\n• How to analyze performance\n• When to adjust strategy\n• Download: [Link in Files section]\n\n💬 ENGAGEMENT STRATEGY\n• First-hour engagement tactics\n• Comment response templates\n• Building community through replies\n• Turning viewers into followers\n• Download: [Link in Files section]\n\nACCOUNTABILITY & COMMUNITY:\n\n🤝 ACCOUNTABILITY PARTNER AGREEMENT\n• Partnership structure\n• Check-in templates\n• Commitment agreement\n• Conflict resolution\n• Download: [Link in Files section]\n\n📅 90-DAY CHALLENGE TRACKER\n• Weekly progress checkpoints\n• Milestone celebrations\n• Consistency tracking\n• Habit building framework\n• Download: [Link in Files section]\n\n🏆 WINS DOCUMENTATION TEMPLATE\n• What to track\n• How to measure progress\n• Celebrating milestones\n• Portfolio building\n• Download: [Link in Files section]\n\nMINDSET & CONFIDENCE:\n\n🧠 CAMERA CONFIDENCE WORKBOOK\n• Identifying your blocks\n• Mindset shifts that matter\n• Fear management techniques\n• Building presence over perfection\n• Download: [Link in Files section]\n\n💪 PRE-RECORDING RITUAL\n• 5-minute confidence boost\n• Energy management\n• Nervous system regulation\n• Getting in the zone\n• Download: [Link in Files section]\n\n🎯 GOAL SETTING FRAMEWORK\n• Realistic goal-setting for video\n• 30-60-90 day planning\n• When to adjust expectations\n• Celebrating progress\n• Download: [Link in Files section]\n\nBONUS RESOURCES:\n\n📧 EMAIL TEMPLATES\n• Inviting guests for interviews\n• Collaboration requests\n• Partnership pitches\n• Download: [Link in Files section]\n\n💼 MEDIA KIT TEMPLATE\n• What to include\n• Design tips\n• One-page version\n• When you need one\n• Download: [Link in Files section]\n\n🎁 SOCIAL MEDIA CAPTION TEMPLATES\n• Video announcement captions\n• Engagement-driving hooks\n• CTA variations\n• Platform-specific adaptations\n• Download: [Link in Files section]\n\nHOW TO USE THIS LIBRARY:\n\n1. START WITH THE ESSENTIALS:\n• 5-Day Video Workflow\n• Pre-Filming Checklist\n• Starter Setup Guide\n\n2. ADD AS YOU NEED:\n• Don't download everything at once\n• Grab resources as specific needs arise\n• Implement before adding more\n\n3. CUSTOMIZE FOR YOU:\n• These are templates, not rules\n• Adapt to your specific situation\n• Take what works, leave what doesn't\n\n4. SHARE YOUR FEEDBACK:\n• What's missing?\n• What's most helpful?\n• What needs clarification?\n• Comment below so I can improve\n\nREQUEST NEW RESOURCES:\n\nIf there's a resource you need that's not here:\n• Comment below with your specific need\n• Explain what you're trying to solve\n• I add new resources monthly based on requests\n\nThis library is a living document. It grows as the community grows.\n\nYour feedback shapes what gets added next.\n\nEverything you need is here or coming soon.\n\nNow go create something amazing.`
+            }
+        ];
+
+        let currentView = 'all';
+        let currentFilter = 'all';
+        let currentVersion = 'short';
+
+        function renderPosts() {
+            const container = document.getElementById('postsContainer');
+            const searchTerm = document.querySelector('.search-box').value.toLowerCase();
+            
+            const filteredPosts = posts.filter(post => {
+                const matchesTab = currentView === 'all' || post.type === currentView;
+                const matchesFilter = currentFilter === 'all' || post.category === currentFilter;
+                const matchesSearch = post.title.toLowerCase().includes(searchTerm) || 
+                                     post.short.toLowerCase().includes(searchTerm) ||
+                                     post.long.toLowerCase().includes(searchTerm);
+                return matchesTab && matchesFilter && matchesSearch;
+            });
+
+            container.innerHTML = filteredPosts.map(post => `
+                <div class="post-card">
+                    <div class="post-header">
+                        <div class="post-title">${post.title}</div>
+                        <div class="post-meta">
+                            <span class="category-badge">${post.category}</span>
+                            <span class="type-badge">${post.type}</span>
+                        </div>
+                    </div>
+                    <div class="post-content short">${post.short.replace(/\n/g, '<br>')}</div>
+                    <div class="post-content long hidden">${post.long.replace(/\n/g, '<br>')}</div>
+                    <div class="post-actions">
+                        <button class="copy-btn" onclick="copyPost(${post.id}, 'short')">
+                            Copy SHORT
+                        </button>
+                        <button class="copy-btn" onclick="copyPost(${post.id}, 'long')">
+                            Copy LONG
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function copyPost(id, version) {
+            const post = posts.find(p => p.id === id);
+            const text = version === 'short' ? post.short : post.long;
+            
+            navigator.clipboard.writeText(text).then(() => {
+                const buttons = event.target.parentElement.querySelectorAll('.copy-btn');
+                const button = event.target;
+                const originalText = button.textContent;
+                
+                button.textContent = 'Copied!';
+                button.classList.add('copied');
+                
+                setTimeout(() => {
+                    button.textContent = originalText;
+                    button.classList.remove('copied');
+                }, 2000);
+            });
+        }
+
+        function exportAll() {
+            let exportText = '='.repeat(80) + '\n';
+            exportText += 'ELFINA LUK / AUTHENTICALLY YOU - COMPLETE CONTENT LIBRARY\n';
+            exportText += '20+ Years Hollywood Experience | 200+ Film/TV Sets\n';
+            exportText += '='.repeat(80) + '\n\n';
+
+            posts.forEach(post => {
+                exportText += '\n' + '='.repeat(80) + '\n';
+                exportText += `POST ${post.id}: ${post.title}\n`;
+                exportText += `Type: ${post.type.toUpperCase()} | Category: ${post.category}\n`;
+                exportText += '='.repeat(80) + '\n\n';
+                
+                exportText += '--- SHORT VERSION ---\n';
+                exportText += post.short + '\n\n';
+                
+                exportText += '--- LONG VERSION ---\n';
+                exportText += post.long + '\n\n';
+            });
+
+            const blob = new Blob([exportText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'Elfina-AuthenticallyYou-Content-Library.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Event Listeners
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
+                currentView = e.target.dataset.tab;
+                renderPosts();
+            });
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                currentFilter = e.target.dataset.filter;
+                renderPosts();
+            });
+        });
+
+        document.querySelector('.search-box').addEventListener('input', () => {
+            renderPosts();
+        });
+
+        document.getElementById('versionToggle').addEventListener('click', (e) => {
+            const shortContents = document.querySelectorAll('.post-content.short');
+            const longContents = document.querySelectorAll('.post-content.long');
+            
+            if (currentVersion === 'short') {
+                shortContents.forEach(el => el.classList.add('hidden'));
+                longContents.forEach(el => el.classList.remove('hidden'));
+                currentVersion = 'long';
+                e.target.textContent = 'Switch to SHORT Version';
+            } else {
+                longContents.forEach(el => el.classList.add('hidden'));
+                shortContents.forEach(el => el.classList.remove('hidden'));
+                currentVersion = 'short';
+                e.target.textContent = 'Switch to LONG Version';
+            }
+        });
+
+        // Initial render
+        renderPosts();
+    </script>
+</body>
+</html>
