@@ -44,18 +44,8 @@ export default function AdminDashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    checkAuth();
     loadData();
   }, []);
-
-  const checkAuth = () => {
-    // Check if user has valid session cookie - if not, redirect to login
-    const hasValidSession = document.cookie.includes('admin-session=');
-    if (!hasValidSession) {
-      router.push("/admin/login");
-      return;
-    }
-  };
 
   const loadData = async () => {
     try {
@@ -72,8 +62,7 @@ export default function AdminDashboard() {
         setResults(resultsData);
         setStats(statsData);
       } else {
-        sessionStorage.removeItem("adminAuth");
-        router.push("/admin/login");
+        console.error('Failed to load data:', resultsResponse.status, statsResponse.status);
       }
     } catch (error) {
       console.error('Error loading data:', error);
