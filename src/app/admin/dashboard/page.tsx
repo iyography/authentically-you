@@ -3,44 +3,45 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { BarChart3, Users, Calendar, TrendingUp, Download, Eye, ChevronDown, ChevronUp, LogOut, RefreshCw } from "lucide-react";
+import { BarChart3, Users, Calendar, Download, Eye, ChevronDown, ChevronUp, LogOut, RefreshCw, BookOpen, ClipboardList } from "lucide-react";
+import { QUESTIONS } from "@/lib/questions";
+import ContentLibrary from "@/components/ContentLibrary";
 import * as XLSX from 'xlsx';
 
-interface QuizResult {
+interface QuizResponse {
   id: string;
-  timestamp: string;
-  userAgent: string;
-  ip?: string;
+  created_at: string;
+  name: string | null;
+  email: string | null;
+  phone: string | null;
+  user_agent: string | null;
+  ip_address: string | null;
   answers: Record<number, string[]>;
-  results: {
-    zone: string;
-    headline: string;
-    description: string;
-    patterns: string[];
-    support: string;
-  };
-  styleInsights: string[];
-  score: number;
-  percentage: number;
+  confidence_zone: string | null;
+  headline: string | null;
+  description: string | null;
+  patterns: string[] | null;
+  support: string | null;
+  style_insights: string[] | null;
 }
 
 interface Stats {
   totalResponses: number;
   zones: Record<string, number>;
-  averageScore: number;
   responsesByDate: Record<string, number>;
 }
 
 export default function AdminDashboard() {
-  const [results, setResults] = useState<QuizResult[]>([]);
+  const [results, setResults] = useState<QuizResponse[]>([]);
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [expandedResult, setExpandedResult] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'date' | 'score' | 'zone'>('date');
+  const [sortBy, setSortBy] = useState<'date' | 'zone'>('date');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [zoneFilter, setZoneFilter] = useState<string>('all');
   const [refreshing, setRefreshing] = useState(false);
   const [exportFormat, setExportFormat] = useState<'xlsx' | 'csv' | 'json'>('xlsx');
+  const [activeTab, setActiveTab] = useState<'quiz-results' | 'content-library'>('quiz-results');
   const router = useRouter();
 
   useEffect(() => {
@@ -83,26 +84,22 @@ export default function AdminDashboard() {
   };
 
   const filteredAndSortedResults = results
-    .filter(result => zoneFilter === 'all' || result.results.zone === zoneFilter)
+    .filter(result => zoneFilter === 'all' || result.confidence_zone === zoneFilter)
     .sort((a, b) => {
-      let aVal, bVal;
+      let aVal: string | Date, bVal: string | Date;
       switch (sortBy) {
         case 'date':
-          aVal = new Date(a.timestamp);
-          bVal = new Date(b.timestamp);
-          break;
-        case 'score':
-          aVal = a.score;
-          bVal = b.score;
+          aVal = new Date(a.created_at);
+          bVal = new Date(b.created_at);
           break;
         case 'zone':
-          aVal = a.results.zone;
-          bVal = b.results.zone;
+          aVal = a.confidence_zone || '';
+          bVal = b.confidence_zone || '';
           break;
         default:
           return 0;
       }
-      
+
       if (sortOrder === 'asc') {
         return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
       } else {
@@ -112,26 +109,26 @@ export default function AdminDashboard() {
 
   const exportData = () => {
     const data = filteredAndSortedResults.map(result => {
-      // Extract user inputs from answers
-      const userInputs: Record<string, string> = {};
+      const answerColumns: Record<string, string> = {};
       Object.entries(result.answers).forEach(([questionId, answers]) => {
-        userInputs[`Question ${questionId}`] = answers.join(', ');
+        const qNum = parseInt(questionId);
+        const qText = QUESTIONS[qNum] || `Question ${questionId}`;
+        answerColumns[`Q${questionId}: ${qText}`] = answers.join(', ');
       });
 
       return {
+        'Name': result.name || '',
+        'Email': result.email || '',
+        'Phone': result.phone || '',
         'Response ID': result.id,
-        'Date & Time': new Date(result.timestamp).toLocaleString(),
-        'Confidence Zone': result.results.zone,
-        'Score': result.score,
-        'Percentage': `${result.percentage.toFixed(1)}%`,
-        'Headline': result.results.headline,
-        'Description': result.results.description,
-        'Support Needed': result.results.support,
-        'Style Insights': result.styleInsights.join('; '),
-        'Patterns Identified': result.results.patterns.join('; '),
-        'IP Address': result.ip || 'Unknown',
-        'User Agent': result.userAgent,
-        ...userInputs
+        'Date & Time': new Date(result.created_at).toLocaleString(),
+        'Confidence Zone': result.confidence_zone || '',
+        'Headline': result.headline || '',
+        'Description': result.description || '',
+        'Support Needed': result.support || '',
+        'Style Insights': (result.style_insights || []).join('; '),
+        'Patterns Identified': (result.patterns || []).join('; '),
+        ...answerColumns,
       };
     });
 
@@ -139,55 +136,48 @@ export default function AdminDashboard() {
     const baseFileName = `authentically-you-quiz-results-${timestamp}`;
 
     if (exportFormat === 'xlsx') {
-      // Create workbook
       const wb = XLSX.utils.book_new();
-      
-      // Summary sheet
+
       const summaryData = [
         ['Total Responses', stats?.totalResponses || 0],
-        ['Average Score', (stats?.averageScore || 0).toFixed(1)],
         [''],
         ['Zone Distribution'],
         ...Object.entries(stats?.zones || {}).map(([zone, count]) => [zone, count])
       ];
-      
+
       const summaryWS = XLSX.utils.aoa_to_sheet(summaryData);
       XLSX.utils.book_append_sheet(wb, summaryWS, 'Summary');
-      
-      // Detailed results sheet
+
       const detailsWS = XLSX.utils.json_to_sheet(data);
       XLSX.utils.book_append_sheet(wb, detailsWS, 'Quiz Results');
-      
+
       XLSX.writeFile(wb, `${baseFileName}.xlsx`);
     } else if (exportFormat === 'csv') {
-      // Create CSV content
       const csv = [
         Object.keys(data[0] || {}).join(','),
-        ...data.map(row => 
-          Object.values(row).map(value => 
+        ...data.map(row =>
+          Object.values(row).map(value =>
             typeof value === 'string' && value.includes(',') ? `"${value}"` : value
           ).join(',')
         )
       ].join('\n');
-      
+
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
       link.download = `${baseFileName}.csv`;
       link.click();
     } else if (exportFormat === 'json') {
-      // Create JSON export with summary data
       const jsonExport = {
         exportDate: new Date().toISOString(),
         summary: {
           totalResponses: stats?.totalResponses || 0,
-          averageScore: (stats?.averageScore || 0).toFixed(1),
           zoneDistribution: stats?.zones || {},
           responsesByDate: stats?.responsesByDate || {}
         },
         results: filteredAndSortedResults
       };
-      
+
       const blob = new Blob([JSON.stringify(jsonExport, null, 2)], { type: 'application/json' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
@@ -221,7 +211,7 @@ export default function AdminDashboard() {
               </div>
               <div>
                 <h1 className="font-serif text-xl text-[#3D3D3D]">Admin Dashboard</h1>
-                <p className="font-sans text-sm text-[#6B6B6B]">Authentically You Quiz Results</p>
+                <p className="font-sans text-sm text-[#6B6B6B]">Authentically You</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
@@ -245,9 +235,43 @@ export default function AdminDashboard() {
         </div>
       </header>
 
+      {/* Tab Navigation */}
+      <div className="border-b border-[#3D3D3D]/10 bg-white/40 backdrop-blur-sm sticky top-[73px] z-30">
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="flex gap-1">
+            <button
+              onClick={() => setActiveTab('quiz-results')}
+              className={`flex items-center gap-2 px-5 py-3 font-sans text-sm border-b-2 transition-all ${
+                activeTab === 'quiz-results'
+                  ? 'border-[#C9A86C] text-[#C9A86C] font-medium'
+                  : 'border-transparent text-[#6B6B6B] hover:text-[#3D3D3D] hover:border-[#3D3D3D]/20'
+              }`}
+            >
+              <ClipboardList className="w-4 h-4" />
+              Quiz Results
+            </button>
+            <button
+              onClick={() => setActiveTab('content-library')}
+              className={`flex items-center gap-2 px-5 py-3 font-sans text-sm border-b-2 transition-all ${
+                activeTab === 'content-library'
+                  ? 'border-[#C9A86C] text-[#C9A86C] font-medium'
+                  : 'border-transparent text-[#6B6B6B] hover:text-[#3D3D3D] hover:border-[#3D3D3D]/20'
+              }`}
+            >
+              <BookOpen className="w-4 h-4" />
+              Content Library
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-6 py-8">
+        {activeTab === 'content-library' ? (
+          <ContentLibrary />
+        ) : (
+        <>
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -271,23 +295,6 @@ export default function AdminDashboard() {
             className="bg-white/80 rounded-2xl p-6 border border-[#3D3D3D]/10 soft-glow"
           >
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-[#B4D4E3]/20 rounded-xl flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-[#4A90B8]" />
-              </div>
-              <div>
-                <p className="font-sans text-sm text-[#6B6B6B]">Average Score</p>
-                <p className="font-serif text-3xl text-[#3D3D3D]">{(stats?.averageScore || 0).toFixed(1)}</p>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white/80 rounded-2xl p-6 border border-[#3D3D3D]/10 soft-glow"
-          >
-            <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-[#C5B4E3]/20 rounded-xl flex items-center justify-center">
                 <Calendar className="w-6 h-6 text-[#8B5A9F]" />
               </div>
@@ -301,7 +308,7 @@ export default function AdminDashboard() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.2 }}
             className="bg-white/80 rounded-2xl p-6 border border-[#3D3D3D]/10 soft-glow"
           >
             <div className="flex items-center gap-4">
@@ -312,7 +319,7 @@ export default function AdminDashboard() {
                 <p className="font-sans text-sm text-[#6B6B6B]">Top Zone</p>
                 <p className="font-serif text-lg text-[#3D3D3D]">
                   {stats && Object.keys(stats.zones).length > 0
-                    ? Object.entries(stats.zones).reduce((a, b) => stats.zones[a[0]] > stats.zones[b[0]] ? a : b)[0]
+                    ? Object.entries(stats.zones).reduce((a, b) => a[1] > b[1] ? a : b)[0]
                     : 'N/A'}
                 </p>
               </div>
@@ -325,7 +332,7 @@ export default function AdminDashboard() {
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.3 }}
             className="bg-white/80 rounded-2xl p-8 border border-[#3D3D3D]/10 soft-glow mb-8"
           >
             <h2 className="font-serif text-2xl text-[#3D3D3D] mb-6">Confidence Zone Distribution</h2>
@@ -344,7 +351,7 @@ export default function AdminDashboard() {
                     key={zone}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.5 + index * 0.1 }}
+                    transition={{ delay: 0.4 + index * 0.1 }}
                     className="flex items-center gap-4"
                   >
                     <div className="w-40 font-sans text-sm font-medium text-[#3D3D3D]">{zone}</div>
@@ -352,11 +359,11 @@ export default function AdminDashboard() {
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${percentage}%` }}
-                        transition={{ duration: 1, delay: 0.8 + index * 0.1 }}
+                        transition={{ duration: 1, delay: 0.6 + index * 0.1 }}
                         className={`bg-gradient-to-r ${colors[index % colors.length]} h-full rounded-full`}
                       />
                       <div className="absolute inset-0 flex items-center px-4 text-sm font-sans font-semibold text-[#3D3D3D]">
-                        {count} responses ({percentage.toFixed(1)}%)
+                        {count} response{count !== 1 ? 's' : ''} ({percentage.toFixed(0)}%)
                       </div>
                     </div>
                   </motion.div>
@@ -370,7 +377,7 @@ export default function AdminDashboard() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.5 }}
           className="bg-white/80 rounded-2xl p-6 border border-[#3D3D3D]/10 soft-glow mb-6"
         >
           <div className="flex flex-wrap items-center gap-4">
@@ -394,15 +401,13 @@ export default function AdminDashboard() {
                 value={`${sortBy}-${sortOrder}`}
                 onChange={(e) => {
                   const [field, order] = e.target.value.split('-');
-                  setSortBy(field as any);
-                  setSortOrder(order as any);
+                  setSortBy(field as 'date' | 'zone');
+                  setSortOrder(order as 'asc' | 'desc');
                 }}
                 className="font-sans text-sm border border-[#3D3D3D]/20 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A86C]/50"
               >
                 <option value="date-desc">Newest First</option>
                 <option value="date-asc">Oldest First</option>
-                <option value="score-desc">Highest Score</option>
-                <option value="score-asc">Lowest Score</option>
                 <option value="zone-asc">Zone A-Z</option>
                 <option value="zone-desc">Zone Z-A</option>
               </select>
@@ -413,7 +418,7 @@ export default function AdminDashboard() {
                 <span className="font-sans text-sm font-medium text-[#3D3D3D]">Export as:</span>
                 <select
                   value={exportFormat}
-                  onChange={(e) => setExportFormat(e.target.value as any)}
+                  onChange={(e) => setExportFormat(e.target.value as 'xlsx' | 'csv' | 'json')}
                   className="font-sans text-sm border border-[#3D3D3D]/20 rounded-lg px-3 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-[#C9A86C]/50"
                 >
                   <option value="xlsx">Excel (.xlsx)</option>
@@ -423,7 +428,8 @@ export default function AdminDashboard() {
               </div>
               <button
                 onClick={exportData}
-                className="flex items-center gap-2 bg-[#C9A86C] text-white px-6 py-2 rounded-xl hover:bg-[#b8975b] transition-all font-sans font-semibold soft-glow"
+                disabled={filteredAndSortedResults.length === 0}
+                className="flex items-center gap-2 bg-[#C9A86C] text-white px-6 py-2 rounded-xl hover:bg-[#b8975b] transition-all font-sans font-semibold soft-glow disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <Download className="w-4 h-4" />
                 Export Data
@@ -436,19 +442,19 @@ export default function AdminDashboard() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
+          transition={{ delay: 0.6 }}
           className="space-y-4"
         >
           <h2 className="font-serif text-2xl text-[#3D3D3D] mb-4">
             Quiz Results ({filteredAndSortedResults.length} of {results.length})
           </h2>
-          
+
           {filteredAndSortedResults.map((result, index) => (
             <motion.div
               key={result.id}
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 + index * 0.05 }}
+              transition={{ delay: 0.7 + index * 0.03 }}
               className="bg-white/80 rounded-2xl border border-[#3D3D3D]/10 overflow-hidden soft-glow"
             >
               <div
@@ -459,23 +465,19 @@ export default function AdminDashboard() {
                   <div className="flex items-center gap-6">
                     <div>
                       <div className="flex items-center gap-3 mb-1">
-                        <div className="w-4 h-4 bg-[#C9A86C] rounded-full"></div>
-                        <h3 className="font-serif text-lg text-[#3D3D3D]">{result.results.zone}</h3>
+                        <div className="w-4 h-4 bg-[#C9A86C] rounded-full" />
+                        <h3 className="font-serif text-lg text-[#3D3D3D]">{result.name || 'Anonymous'}</h3>
                       </div>
                       <p className="font-sans text-sm text-[#6B6B6B]">
-                        {new Date(result.timestamp).toLocaleString()}
-                      </p>
-                      <p className="font-sans text-xs text-[#6B6B6B] mt-1">
-                        ID: {result.id.slice(0, 8)}...
+                        {result.email && <span className="mr-3">{result.email}</span>}
+                        {result.phone && <span className="mr-3">{result.phone}</span>}
+                        {new Date(result.created_at).toLocaleString()}
                       </p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-sans font-semibold text-lg text-[#3D3D3D]">
-                        {result.score}/{18 * 5}
-                      </p>
-                      <p className="font-sans text-sm text-[#6B6B6B]">
-                        {result.percentage.toFixed(1)}%
-                      </p>
+                    <div className="hidden sm:block">
+                      <span className="font-sans text-xs font-medium bg-[#C9A86C]/15 text-[#b8975b] px-3 py-1 rounded-full">
+                        {result.confidence_zone || 'Unknown'}
+                      </span>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -497,105 +499,61 @@ export default function AdminDashboard() {
                   className="border-t border-[#3D3D3D]/10 bg-gradient-to-r from-white/20 to-white/40"
                 >
                   <div className="p-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                      {/* Results */}
-                      <div>
-                        <h4 className="font-serif text-lg text-[#3D3D3D] mb-3 flex items-center gap-2">
-                          <div className="w-6 h-6 bg-[#C9A86C] rounded-lg flex items-center justify-center">
-                            <TrendingUp className="w-4 h-4 text-white" />
-                          </div>
-                          Results Summary
-                        </h4>
-                        <div className="space-y-4">
-                          <div>
-                            <p className="font-sans text-sm font-semibold text-[#3D3D3D] mb-1">Headline:</p>
-                            <p className="font-sans text-sm text-[#6B6B6B]">{result.results.headline}</p>
-                          </div>
-                          <div>
-                            <p className="font-sans text-sm font-semibold text-[#3D3D3D] mb-1">Description:</p>
-                            <p className="font-sans text-sm text-[#6B6B6B]">{result.results.description}</p>
-                          </div>
-                          <div>
-                            <p className="font-sans text-sm font-semibold text-[#3D3D3D] mb-2">Patterns:</p>
-                            <div className="space-y-1">
-                              {result.results.patterns.map((pattern, i) => (
-                                <div key={i} className="flex items-start gap-2">
-                                  <span className="text-[#C9A86C] text-sm">•</span>
-                                  <span className="font-sans text-sm text-[#6B6B6B]">{pattern}</span>
-                                </div>
-                              ))}
+                    {/* Zone Result Summary */}
+                    <div className="bg-[#C9A86C]/10 rounded-2xl p-5 mb-6">
+                      <h4 className="font-serif text-lg text-[#3D3D3D] mb-1">{result.confidence_zone}</h4>
+                      <p className="font-sans text-sm italic text-[#C9A86C] mb-2">{result.headline}</p>
+                      <p className="font-sans text-sm text-[#6B6B6B]">{result.description}</p>
+                      {result.patterns && result.patterns.length > 0 && (
+                        <div className="mt-3 space-y-1">
+                          {result.patterns.map((pattern, i) => (
+                            <div key={i} className="flex items-start gap-2">
+                              <span className="text-[#C9A86C] text-sm">•</span>
+                              <span className="font-sans text-sm text-[#6B6B6B]">{pattern}</span>
                             </div>
-                          </div>
-                          <div>
-                            <p className="font-sans text-sm font-semibold text-[#3D3D3D] mb-1">Support Needed:</p>
-                            <p className="font-sans text-sm text-[#6B6B6B]">{result.results.support}</p>
-                          </div>
+                          ))}
+                        </div>
+                      )}
+                      {result.support && (
+                        <p className="font-sans text-sm text-[#6B6B6B] mt-3">
+                          <span className="font-semibold text-[#3D3D3D]">Support needed: </span>
+                          {result.support}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Style Insights */}
+                    {result.style_insights && result.style_insights.length > 0 && (
+                      <div className="bg-[#C5B4E3]/10 rounded-2xl p-5 mb-6">
+                        <h4 className="font-serif text-md text-[#3D3D3D] mb-2">Style Insights</h4>
+                        <div className="space-y-1">
+                          {result.style_insights.map((insight, i) => (
+                            <div key={i} className="flex items-start gap-2">
+                              <span className="text-[#C5B4E3] text-sm">•</span>
+                              <span className="font-sans text-sm text-[#6B6B6B]">{insight}</span>
+                            </div>
+                          ))}
                         </div>
                       </div>
+                    )}
 
-                      {/* User Inputs & Technical */}
-                      <div>
-                        <h4 className="font-serif text-lg text-[#3D3D3D] mb-3 flex items-center gap-2">
-                          <div className="w-6 h-6 bg-[#B4D4E3] rounded-lg flex items-center justify-center">
-                            <Users className="w-4 h-4 text-white" />
-                          </div>
-                          Technical Details
-                        </h4>
-                        <div className="space-y-3 font-sans text-sm">
-                          <div>
-                            <span className="font-semibold text-[#3D3D3D]">Response ID:</span>
-                            <code className="bg-[#3D3D3D]/10 px-2 py-1 rounded ml-2 text-xs">{result.id}</code>
-                          </div>
-                          <div>
-                            <span className="font-semibold text-[#3D3D3D]">IP Address:</span>
-                            <span className="ml-2 text-[#6B6B6B]">{result.ip || 'Unknown'}</span>
-                          </div>
-                          <div>
-                            <span className="font-semibold text-[#3D3D3D]">Questions Answered:</span>
-                            <span className="ml-2 text-[#6B6B6B]">{Object.keys(result.answers).length}</span>
-                          </div>
-                          <div>
-                            <span className="font-semibold text-[#3D3D3D]">Browser:</span>
-                            <span className="ml-2 text-[#6B6B6B] text-xs break-all">{result.userAgent}</span>
-                          </div>
-                        </div>
-
-                        {result.styleInsights.length > 0 && (
-                          <div className="mt-6">
-                            <h5 className="font-serif text-md text-[#3D3D3D] mb-2 flex items-center gap-2">
-                              <div className="w-5 h-5 bg-[#C5B4E3] rounded flex items-center justify-center">
-                                <Eye className="w-3 h-3 text-white" />
+                    {/* All Answers */}
+                    <div className="bg-white/60 rounded-2xl p-5">
+                      <h4 className="font-serif text-lg text-[#3D3D3D] mb-4">All Answers</h4>
+                      <div className="space-y-4">
+                        {Object.entries(result.answers)
+                          .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                          .map(([questionId, answers]) => {
+                            const qNum = parseInt(questionId);
+                            const questionText = QUESTIONS[qNum] || `Question ${questionId}`;
+                            return (
+                              <div key={questionId} className="border-b border-[#3D3D3D]/5 pb-3 last:border-0 last:pb-0">
+                                <p className="font-sans text-xs text-[#C9A86C] font-semibold mb-1">Q{questionId}</p>
+                                <p className="font-sans text-sm font-medium text-[#3D3D3D] mb-1">{questionText}</p>
+                                <p className="font-sans text-sm text-[#6B6B6B]">{answers.join(', ')}</p>
                               </div>
-                              Style Insights
-                            </h5>
-                            <div className="space-y-1">
-                              {result.styleInsights.map((insight, i) => (
-                                <div key={i} className="flex items-start gap-2">
-                                  <span className="text-[#C5B4E3] text-sm">•</span>
-                                  <span className="font-sans text-sm text-[#6B6B6B]">{insight}</span>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Show some user answers */}
-                        <div className="mt-6">
-                          <h5 className="font-serif text-md text-[#3D3D3D] mb-2">Sample Answers</h5>
-                          <div className="space-y-2 max-h-32 overflow-y-auto">
-                            {Object.entries(result.answers).slice(0, 3).map(([questionId, answers]) => (
-                              <div key={questionId} className="text-sm">
-                                <span className="font-semibold text-[#3D3D3D]">Q{questionId}:</span>
-                                <span className="ml-2 text-[#6B6B6B]">{answers.join(', ')}</span>
-                              </div>
-                            ))}
-                            {Object.keys(result.answers).length > 3 && (
-                              <p className="text-xs text-[#6B6B6B] italic">
-                                +{Object.keys(result.answers).length - 3} more answers
-                              </p>
-                            )}
-                          </div>
-                        </div>
+                            );
+                          })}
                       </div>
                     </div>
                   </div>
@@ -603,16 +561,18 @@ export default function AdminDashboard() {
               )}
             </motion.div>
           ))}
-          
+
           {filteredAndSortedResults.length === 0 && (
             <div className="bg-white/80 rounded-2xl p-12 border border-[#3D3D3D]/10 text-center soft-glow">
               <div className="w-16 h-16 bg-[#3D3D3D]/10 rounded-full flex items-center justify-center mx-auto mb-4">
                 <BarChart3 className="w-8 h-8 text-[#6B6B6B]" />
               </div>
-              <p className="font-sans text-[#6B6B6B]">No results match your current filters.</p>
+              <p className="font-sans text-[#6B6B6B]">No results yet. Quiz responses will appear here.</p>
             </div>
           )}
         </motion.div>
+        </>
+        )}
       </div>
     </div>
   );

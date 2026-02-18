@@ -1,28 +1,28 @@
 "use client";
 
-import Navbar from "@/components/Navbar";
-import Link from "next/link";
-import Image from "next/image";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowLeft, ArrowRight, Check, Sparkles } from "lucide-react";
 
 // Pre-generated particle positions for performance (no state updates)
-const PARTICLES = Array.from({ length: 60 }, (_, i) => ({
+const PARTICLES = Array.from({ length: 50 }, (_, i) => ({
   id: i,
-  left: `${(i * 1.7) % 100}%`,
-  delay: `${(i * 0.35) % 12}s`,
+  left: `${(i * 2.1) % 100}%`,
+  delay: `${(i * 0.4) % 12}s`,
   size: `${1 + (i % 3)}px`,
 }));
 
-const SPARKLES = Array.from({ length: 20 }, (_, i) => ({
+const SPARKLES = Array.from({ length: 15 }, (_, i) => ({
   id: i,
-  left: `${(i * 5.3) % 100}%`,
-  top: `${(i * 9.7) % 100}%`,
-  delay: `${(i * 0.25) % 2}s`,
+  left: `${(i * 7.3) % 100}%`,
+  top: `${(i * 11.7) % 100}%`,
+  delay: `${(i * 0.3) % 2}s`,
 }));
 
 // Floating particles - pure CSS animation, no re-renders
 function FloatingParticles() {
   return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden z-[1]">
+    <div className="fixed inset-0 pointer-events-none overflow-hidden z-[100]">
       {PARTICLES.map((particle) => (
         <div
           key={particle.id}
@@ -56,23 +56,23 @@ function AuroraBackground() {
   return (
     <>
       <div className="aurora-bg" />
-      <div className="aurora-layer fixed inset-0 z-0" />
+      <div className="aurora-layer fixed inset-0 z-[2]" />
       {/* Soft floating light orbs */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-[3]">
         <div
-          className="floating-light w-[500px] h-[500px] bg-[#C5B4E3]/15"
+          className="floating-light w-[600px] h-[600px] bg-[#C5B4E3]/30"
           style={{ top: "5%", left: "-5%", animation: "auroraWave1 40s ease-in-out infinite" }}
         />
         <div
-          className="floating-light w-[400px] h-[400px] bg-[#B4D4E3]/12"
+          className="floating-light w-[500px] h-[500px] bg-[#B4D4E3]/25"
           style={{ top: "50%", right: "-10%", animation: "auroraWave2 35s ease-in-out infinite" }}
         />
         <div
-          className="floating-light w-[450px] h-[450px] bg-[#E3B4D4]/10"
+          className="floating-light w-[550px] h-[550px] bg-[#E3B4D4]/20"
           style={{ bottom: "10%", left: "20%", animation: "auroraWave3 45s ease-in-out infinite" }}
         />
         <div
-          className="floating-light w-[350px] h-[350px] bg-[#E8D5B5]/12"
+          className="floating-light w-[450px] h-[450px] bg-[#E8D5B5]/25"
           style={{ top: "30%", left: "50%", animation: "auroraWave1 50s ease-in-out infinite reverse" }}
         />
       </div>
@@ -80,420 +80,1075 @@ function AuroraBackground() {
   );
 }
 
-// Testimonials data
-const testimonials = [
+interface Question {
+  id: number;
+  question: string;
+  options: string[];
+  multiSelect?: boolean;
+  category: "primary" | "style" | "content";
+}
+
+interface QuizSection {
+  title: string;
+  description: string;
+  questions: Question[];
+}
+
+const quizData: QuizSection[] = [
   {
-    quote: "Today's training was amazing!! Thank you @Elfina Luk!!!!! I haven't recorded a video in I can't remember when! Not only did I record 5 videos but I tapped back into WHY I want to record videos!!",
-    name: "A.N.",
-    title: "Designer"
+    title: "Baseline & Context",
+    description: "Let's understand where you are right now",
+    questions: [
+      {
+        id: 1,
+        question: "How often do you currently record video of yourself?",
+        options: ["Rarely or never", "Occasionally", "Weekly", "Multiple times per week", "Daily"],
+        category: "primary",
+      },
+      {
+        id: 2,
+        question: "Where do you usually show up on video (if at all)?",
+        options: ["I don't post yet", "Stories only", "Short-form (Reels / TikTok)", "Long-form (YouTube / Lives)", "Multiple platforms"],
+        category: "primary",
+      },
+      {
+        id: 3,
+        question: "How long have you been trying to show up on camera?",
+        options: ["Just starting", "A few months", "6–12 months", "1–2 years", "2+ years"],
+        category: "primary",
+      },
+      {
+        id: 4,
+        question: "When you think about recording today, you feel:",
+        options: ["Avoidant", "Nervous", "Neutral", "Calm", "Excited"],
+        category: "primary",
+      },
+    ],
   },
   {
-    quote: "I've had the pleasure of working with Elfina over the past few months and have made unexpected, meaningful progress. She creates a safe space where I can share at my own pace, offering invaluable insights into the barriers in my life that have held me back from reaching my full potential.",
-    name: "Claudia Chen",
-    title: "Designer"
+    title: "Output & Behavior",
+    description: "What actually happens when you try",
+    questions: [
+      {
+        id: 5,
+        question: "How many videos do you actually publish per week?",
+        options: ["0", "1", "2–3", "4–5", "Daily"],
+        category: "primary",
+      },
+      {
+        id: 6,
+        question: "On average, how many takes does one video require before you're \"okay\" posting it?",
+        options: ["I don't usually post", "10+ takes", "5–9 takes", "2–4 takes", "1 take"],
+        category: "primary",
+      },
+      {
+        id: 7,
+        question: "How long does one short video usually take from start to finish?",
+        options: ["I don't usually finish", "30–60 minutes", "20–30 minutes", "10–15 minutes", "Under 10 minutes"],
+        category: "primary",
+      },
+      {
+        id: 8,
+        question: "What happens most often after you hit record?",
+        options: ["I stop and restart constantly", "I overthink every sentence", "I push through but feel stiff", "I stay mostly present", "I forget the camera is there"],
+        category: "primary",
+      },
+    ],
   },
   {
-    quote: "Thank you Elfina for the work done during our sessions! You really know how to actively listen to people, and are able to instill a confidence mood right from the start. It's really useful to reframe things and start dealing with our limiting beliefs.",
-    name: "Sylvain Z.",
-    title: "Designer"
+    title: "Inner Experience",
+    description: "Presence vs performance",
+    questions: [
+      {
+        id: 9,
+        question: "Watching your videos back usually feels:",
+        options: ["Cringey", "Uncomfortable", "Neutral", "Encouraging", "Grounded"],
+        category: "primary",
+      },
+      {
+        id: 10,
+        question: "Do you feel like you're performing on camera?",
+        options: ["Always", "Often", "Sometimes", "Rarely", "Never"],
+        category: "primary",
+      },
+      {
+        id: 11,
+        question: "How connected do you feel to yourself on camera?",
+        options: ["Disconnected", "Slightly disconnected", "Somewhat present", "Mostly present", "Fully embodied"],
+        category: "primary",
+      },
+      {
+        id: 12,
+        question: "When you make a mistake on camera, you usually:",
+        options: ["Stop immediately", "Spiral internally", "Push through awkwardly", "Laugh and continue", "Barely notice"],
+        category: "primary",
+      },
+      {
+        id: 13,
+        question: "Which thought shows up most while recording?",
+        options: ["\"I look / sound bad.\"", "\"This isn't good enough.\"", "\"I hope this makes sense.\"", "\"This will help someone.\"", "\"I trust myself.\""],
+        category: "primary",
+      },
+    ],
   },
   {
-    quote: "Elfina's gentle and powerful ability to help me uncover and address the root causes of my struggles was a truly healing experience making it possible for me to release long-held emotional barriers. The session left me feeling lighter and more aligned with myself.",
-    name: "Ben B.",
-    title: "Designer"
+    title: "Style Awareness",
+    description: "Exploring what feels natural for you",
+    questions: [
+      {
+        id: 14,
+        question: "When filming feels the least intimidating, you imagine yourself:",
+        options: ["Talking directly to the camera", "Walking and talking", "Sitting and explaining something", "Being asked questions", "Showing what you're doing instead of talking"],
+        category: "style",
+      },
+      {
+        id: 15,
+        question: "Which option feels most supportive right now?",
+        options: ["Knowing exactly what I'll say", "Having bullet points", "Having a loose idea and flowing", "Discovering it as I speak", "I honestly don't know yet"],
+        category: "style",
+      },
+      {
+        id: 16,
+        question: "Your body feels safest on camera when you are:",
+        options: ["Sitting still", "Standing and presenting", "Moving (walking, pacing, gesturing)", "Doing something with your hands", "I haven't found this yet"],
+        category: "style",
+      },
+      {
+        id: 17,
+        question: "What feels more natural for you?",
+        options: ["Teaching or explaining", "Sharing personal reflections", "Having a conversation", "Responding to questions or ideas", "I'm still figuring this out"],
+        category: "style",
+      },
+      {
+        id: 18,
+        question: "Which type of video feels the most uncomfortable right now?",
+        options: ["Scripted videos", "Talking head videos", "Being seen on camera at all", "Longform videos", "Letting myself ramble"],
+        category: "style",
+      },
+    ],
   },
   {
-    quote: "I came to her because I want to create content, but noticed something blocking me from being authentic in front of the camera. In only the first session, she helped me uncover so much. Guiding me through my thoughts, the source of the trigger.... It was super valuable.",
-    name: "Mira N.",
-    title: "Designer"
+    title: "Consistency & Identity",
+    description: "Plateau vs expansion signals",
+    questions: [
+      {
+        id: 19,
+        question: "Showing up on camera currently feels like:",
+        options: ["A threat", "A chore", "A practice", "A tool", "Self-expression"],
+        category: "primary",
+      },
+      {
+        id: 20,
+        question: "How consistent are you really with video?",
+        options: ["Not consistent", "On and off", "Fairly consistent", "Very consistent", "It's part of who I am"],
+        category: "primary",
+      },
+      {
+        id: 21,
+        question: "Which sounds most like your current situation?",
+        options: ["I'm avoiding camera altogether", "I'm trying but stuck", "I'm improving but inconsistent", "I'm confident but refining", "I'm ready to lead"],
+        category: "primary",
+      },
+      {
+        id: 22,
+        question: "What's your biggest fear about showing up on camera?",
+        options: ["I'll be judged", "I'll sound stupid", "I'll never feel natural", "I won't make an impact", "I'll outgrow my current level"],
+        category: "primary",
+      },
+      {
+        id: 23,
+        question: "If nothing changed, what worries you most?",
+        options: ["I'll never start", "I'll stay stuck", "I'll plateau", "I'll blend in", "I'll waste my potential"],
+        category: "primary",
+      },
+    ],
   },
   {
-    quote: "Elfina has such a gift for helping people feel at ease both in front of and behind the camera. She creates a safe, encouraging space where learning feels natural and even joyful. Being part of her community has not only improved my comfort on camera, it's helped me express myself more freely.",
-    name: "Tina S.",
-    title: "Designer"
+    title: "Desire & Support",
+    description: "Understanding what would help you most",
+    questions: [
+      {
+        id: 24,
+        question: "What would help you most right now?",
+        options: ["Confidence to start", "Consistency", "Presence & authenticity", "Refinement", "Leadership"],
+        multiSelect: true,
+        category: "primary",
+      },
+      {
+        id: 25,
+        question: "How do you prefer to get unstuck?",
+        options: ["Give me resources", "Some guidance + feedback", "Someone alongside me", "Personalized mentorship"],
+        category: "primary",
+      },
+      {
+        id: 26,
+        question: "Right now, what are you most drawn to creating?",
+        options: ["A simple intro or welcome video", "Short-form videos (reels / shorts)", "Longer conversations or teaching", "Educational or course-style content", "I'm not sure yet"],
+        category: "content",
+      },
+      {
+        id: 27,
+        question: "Which feels most true right now?",
+        options: ["\"I want to show up but I'm scared.\"", "\"I'm figuring it out.\"", "\"I'm close.\"", "\"I'm confident.\"", "\"I'm ready for mastery.\""],
+        category: "primary",
+      },
+    ],
   },
 ];
 
-// Offers data
-const offers = [
-  {
-    title: "Free Resources",
-    description: "Join now for free resources, tools, mindset shifts for confidence + flow.",
-    icon: "✨"
-  },
-  {
-    title: "Behind the Scenes",
-    description: "Follow my journey with unfiltered video updates as I build this community alongside a film career.",
-    icon: "🎬"
-  },
-  {
-    title: "Backstage Pass",
-    description: "This is your access to 1:1 mentorship + advanced resources to accelerate the growth of your audience and business.",
-    icon: "🎟️"
-  },
-  {
-    title: "Win Your Money Back",
-    description: "Join our Challenge to Create 5 videos in 5 days: repeat for consistency + momentum. Win your money back for showing up!",
-    icon: "🏆"
-  },
-  {
-    title: "Step into the Green Room",
-    description: "For live coaching, feedback + business support to streamline your workflow and maximize your efforts towards your confidence journey.",
-    icon: "🎤"
-  },
-  {
-    title: "Insider's Studio",
-    description: "Go In the Studio with Elfina for private, high-level collaboration by invite or application only. Only for those ready for top level of commitment.",
-    icon: "🌟"
-  },
-];
+const allQuestions = quizData.flatMap((section) => section.questions);
 
-// Community features
-const communityFeatures = [
-  "5 Videos in 5 Days Challenge",
-  "Behind the Scenes Access",
-  "Community Connection",
-  "On Camera Weekly Q&A Replays",
-  "Confidence + Mindset Tools",
-  "1:1 Mentorship",
-  "Live \"Action\" Coaching Calls",
-  "Creator Spotlights + Features",
-  "Insiders Studio Access",
-  "Resource Library + Templates",
-];
+// Calculate confidence zone based on answers
+function calculateResults(answers: Record<number, string[]>) {
+  let score = 0;
+  const maxScore = 18 * 5; // 18 primary questions, max 5 points each (index 4)
 
-export default function Home() {
+  // Score primary questions (higher index = more confident)
+  const primaryQuestions = allQuestions.filter(q => q.category === "primary");
+
+  primaryQuestions.forEach(q => {
+    const answer = answers[q.id]?.[0];
+    if (answer) {
+      const index = q.options.indexOf(answer);
+      if (index !== -1) {
+        score += index + 1;
+      }
+    }
+  });
+
+  const percentage = (score / maxScore) * 100;
+
+  if (percentage <= 25) {
+    return {
+      zone: "Starting Zone",
+      headline: "You're at the beginning of your journey",
+      description: "You want to show up but something holds you back. The camera feels unfamiliar, maybe even unsafe. That's okay—everyone starts here.",
+      patterns: [
+        "You may avoid recording altogether",
+        "When you do record, you restart constantly",
+        "Watching yourself back feels uncomfortable",
+        "Fear of judgment is your biggest barrier"
+      ],
+      support: "You need a safe space to begin. Not more tactics—permission to start imperfectly.",
+    };
+  } else if (percentage <= 45) {
+    return {
+      zone: "Building Zone",
+      headline: "You're figuring it out",
+      description: "You've started showing up, but consistency is a struggle. You know what you want to say but something gets lost between intention and recording.",
+      patterns: [
+        "You record, but posting feels hard",
+        "Multiple takes are normal",
+        "You feel like you're performing, not connecting",
+        "Progress happens, then stalls"
+      ],
+      support: "You need systems and support to stay consistent. Guidance that helps you find your voice, not copy someone else's.",
+    };
+  } else if (percentage <= 65) {
+    return {
+      zone: "Growing Zone",
+      headline: "You're close",
+      description: "You're showing up more regularly and it's getting easier. But there are still moments where you feel disconnected or stuck in your own way.",
+      patterns: [
+        "You post, but not as often as you'd like",
+        "Some videos feel great, others don't",
+        "You're refining your style",
+        "Confidence comes and goes"
+      ],
+      support: "You need refinement—feedback, accountability, and tools to move from good to great.",
+    };
+  } else if (percentage <= 85) {
+    return {
+      zone: "Confident Zone",
+      headline: "You're confident",
+      description: "The camera feels like home. You trust yourself on video, and your audience feels that. Now it's about impact and reach.",
+      patterns: [
+        "You create consistently",
+        "Mistakes don't derail you",
+        "You feel authentic on camera",
+        "You're ready to expand"
+      ],
+      support: "You need strategy—ways to scale your presence and deepen your impact.",
+    };
+  } else {
+    return {
+      zone: "Mastery Zone",
+      headline: "You're ready for mastery",
+      description: "Video is self-expression for you. You're not just confident—you're ready to lead others. The question is: what's next?",
+      patterns: [
+        "Video is part of who you are",
+        "You inspire others",
+        "You're looking for new challenges",
+        "You want to mentor or teach"
+      ],
+      support: "You need community and challenge—opportunities to lead and grow alongside peers at your level.",
+    };
+  }
+}
+
+// Get style insights based on answers
+function getStyleInsights(answers: Record<number, string[]>) {
+  const insights: string[] = [];
+
+  // Q14 - Filming comfort
+  const q14 = answers[14]?.[0];
+  if (q14 === "Walking and talking" || q14 === "Showing what you're doing instead of talking") {
+    insights.push("You may feel more natural with movement-based content");
+  } else if (q14 === "Being asked questions") {
+    insights.push("Conversational formats might feel more supportive");
+  }
+
+  // Q15 - Preparation style
+  const q15 = answers[15]?.[0];
+  if (q15 === "Knowing exactly what I'll say") {
+    insights.push("You prefer structure—scripts or detailed outlines could help");
+  } else if (q15 === "Discovering it as I speak") {
+    insights.push("You're drawn to spontaneity—freestyle formats may work well");
+  }
+
+  // Q17 - Natural format
+  const q17 = answers[17]?.[0];
+  if (q17 === "Teaching or explaining") {
+    insights.push("Educational content aligns with your natural style");
+  } else if (q17 === "Sharing personal reflections") {
+    insights.push("Personal storytelling resonates with how you communicate");
+  }
+
+  // Q18 - Discomfort
+  const q18 = answers[18]?.[0];
+  if (q18 === "Scripted videos") {
+    insights.push("You may need more room for authenticity—loose frameworks over scripts");
+  } else if (q18 === "Letting myself ramble") {
+    insights.push("Structure gives you safety—bullet points may help");
+  }
+
+  return insights;
+}
+
+export default function QuizPage() {
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [answers, setAnswers] = useState<Record<number, string[]>>({});
+  const [isComplete, setIsComplete] = useState(false);
+  const [showIntro, setShowIntro] = useState(true);
+  const [showContactForm, setShowContactForm] = useState(false);
+  const [userName, setUserName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [userPhone, setUserPhone] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+
+  const question = allQuestions[currentQuestion];
+  const totalQuestions = allQuestions.length;
+  const progress = ((currentQuestion + 1) / totalQuestions) * 100;
+
+  // Find which section the current question belongs to
+  let questionCount = 0;
+  let currentSectionIndex = 0;
+  for (let i = 0; i < quizData.length; i++) {
+    if (currentQuestion < questionCount + quizData[i].questions.length) {
+      currentSectionIndex = i;
+      break;
+    }
+    questionCount += quizData[i].questions.length;
+  }
+  const currentSection = quizData[currentSectionIndex];
+
+  const handleSelectOption = (option: string) => {
+    const currentAnswers = answers[question.id] || [];
+
+    if (question.multiSelect) {
+      if (currentAnswers.includes(option)) {
+        setAnswers({
+          ...answers,
+          [question.id]: currentAnswers.filter((a) => a !== option),
+        });
+      } else {
+        setAnswers({
+          ...answers,
+          [question.id]: [...currentAnswers, option],
+        });
+      }
+    } else {
+      setAnswers({
+        ...answers,
+        [question.id]: [option],
+      });
+
+      // Auto-advance for single select
+      setTimeout(async () => {
+        if (currentQuestion < totalQuestions - 1) {
+          setCurrentQuestion(currentQuestion + 1);
+        } else {
+          await completeQuiz();
+        }
+      }, 300);
+    }
+  };
+
+  const handleNext = async () => {
+    if (currentQuestion < totalQuestions - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+    } else {
+      await completeQuiz();
+    }
+  };
+
+  const handleBack = () => {
+    if (currentQuestion > 0) {
+      setCurrentQuestion(currentQuestion - 1);
+    }
+  };
+
+  const canProceed = (answers[question?.id] || []).length > 0;
+
+  // Function to save quiz results
+  const saveQuizResults = async (results: ReturnType<typeof calculateResults>, styleInsights: string[]) => {
+    if (isSaving) return;
+
+    setIsSaving(true);
+    try {
+      const response = await fetch('/api/quiz/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: userName,
+          email: userEmail,
+          phone: userPhone,
+          answers,
+          results,
+          styleInsights,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save results');
+      }
+
+      const data = await response.json();
+      console.log('Quiz results saved:', data.id);
+    } catch (error) {
+      console.error('Error saving quiz results:', error);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  // Show contact form after last question
+  const completeQuiz = async () => {
+    setShowContactForm(true);
+  };
+
+  // Submit contact info + quiz results
+  const submitContactAndResults = async () => {
+    const results = calculateResults(answers);
+    const styleInsights = getStyleInsights(answers);
+
+    await saveQuizResults(results, styleInsights);
+
+    setShowContactForm(false);
+    setIsComplete(true);
+  };
+
+  if (showIntro) {
+    return (
+      <div className="calm-gradient-radial min-h-screen text-[#3D3D3D] relative">
+        <AuroraBackground />
+        <FloatingParticles />
+
+        {/* Header */}
+        <header className="fixed top-0 left-0 right-0 z-50 py-4 px-6 bg-[#FFF8F0]/80 backdrop-blur-sm">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <span className="font-script text-2xl md:text-3xl text-[#3D3D3D]">
+              Authentically You
+            </span>
+            <nav className="flex items-center gap-3 md:gap-5">
+              <a
+                href="https://www.skool.com/authenticallyou/about"
+                className="font-sans text-xs md:text-sm text-[#6B6B6B] hover:text-[#C9A86C] transition-colors"
+              >
+                Join the Community
+              </a>
+              <a
+                href="/apply"
+                className="font-sans text-xs md:text-sm font-semibold bg-[#C9A86C] text-white px-4 py-2 rounded-full hover:bg-[#b8975b] transition-all"
+              >
+                Apply to Work with Me
+              </a>
+            </nav>
+          </div>
+        </header>
+
+        <div className="min-h-screen flex items-center justify-center px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-2xl mx-auto text-center"
+          >
+            <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-12 md:p-16 soft-glow">
+              <Sparkles className="w-12 h-12 text-[#C9A86C] mx-auto mb-6" />
+              <h1 className="font-serif text-4xl md:text-5xl mb-4 text-[#3D3D3D]">
+                Camera Confidence Zone Quiz
+              </h1>
+              <p className="font-sans text-lg text-[#6B6B6B] mb-8 leading-relaxed">
+                Discover where you are on your camera confidence journey. Get clarity on your patterns, friction points, and where support helps most.
+              </p>
+              <p className="font-sans text-sm text-[#6B6B6B]/70 mb-8">
+                27 questions · Takes about 5 minutes
+              </p>
+              <button
+                onClick={() => setShowIntro(false)}
+                className="font-sans font-semibold bg-[#C9A86C] text-white px-12 py-4 rounded-full hover:bg-[#b8975b] transition-all soft-glow"
+              >
+                Start the Quiz
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  if (showContactForm) {
+    const canSubmit = userName.trim().length > 0 && userEmail.trim().length > 0;
+    return (
+      <div className="calm-gradient-radial min-h-screen text-[#3D3D3D] relative">
+        <AuroraBackground />
+        <FloatingParticles />
+
+        <header className="fixed top-0 left-0 right-0 z-50 py-4 px-6 bg-[#FFF8F0]/80 backdrop-blur-sm">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <span className="font-script text-2xl md:text-3xl text-[#3D3D3D]">
+              Authentically You
+            </span>
+            <nav className="flex items-center gap-3 md:gap-5">
+              <a
+                href="https://www.skool.com/authenticallyou/about"
+                className="font-sans text-xs md:text-sm text-[#6B6B6B] hover:text-[#C9A86C] transition-colors"
+              >
+                Join the Community
+              </a>
+              <a
+                href="/apply"
+                className="font-sans text-xs md:text-sm font-semibold bg-[#C9A86C] text-white px-4 py-2 rounded-full hover:bg-[#b8975b] transition-all"
+              >
+                Apply to Work with Me
+              </a>
+            </nav>
+          </div>
+        </header>
+
+        <div className="min-h-screen flex items-center justify-center px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-2xl mx-auto w-full"
+          >
+            <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-12 md:p-16 soft-glow">
+              <Sparkles className="w-10 h-10 text-[#C9A86C] mx-auto mb-4" />
+              <h2 className="font-serif text-3xl md:text-4xl mb-2 text-[#3D3D3D] text-center">
+                Almost there!
+              </h2>
+              <p className="font-sans text-[#6B6B6B] mb-8 text-center">
+                Enter your details to see your results
+              </p>
+
+              <div className="space-y-5 max-w-md mx-auto">
+                <div>
+                  <label htmlFor="name" className="font-sans text-sm font-medium text-[#3D3D3D] block mb-2">
+                    Name
+                  </label>
+                  <input
+                    id="name"
+                    type="text"
+                    value={userName}
+                    onChange={(e) => setUserName(e.target.value)}
+                    placeholder="e.g. Sarah"
+                    className="w-full px-5 py-3 rounded-2xl border-2 border-[#3D3D3D]/10 bg-white/70 font-sans text-sm text-[#3D3D3D] placeholder:text-[#6B6B6B]/40 focus:outline-none focus:border-[#C9A86C] transition-all"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="email" className="font-sans text-sm font-medium text-[#3D3D3D] block mb-2">
+                    Email
+                  </label>
+                  <input
+                    id="email"
+                    type="email"
+                    value={userEmail}
+                    onChange={(e) => setUserEmail(e.target.value)}
+                    placeholder="e.g. sarah@example.com"
+                    className="w-full px-5 py-3 rounded-2xl border-2 border-[#3D3D3D]/10 bg-white/70 font-sans text-sm text-[#3D3D3D] placeholder:text-[#6B6B6B]/40 focus:outline-none focus:border-[#C9A86C] transition-all"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="phone" className="font-sans text-sm font-medium text-[#3D3D3D] block mb-2">
+                    Phone number
+                  </label>
+                  <input
+                    id="phone"
+                    type="tel"
+                    value={userPhone}
+                    onChange={(e) => setUserPhone(e.target.value)}
+                    placeholder="e.g. (555) 123-4567"
+                    className="w-full px-5 py-3 rounded-2xl border-2 border-[#3D3D3D]/10 bg-white/70 font-sans text-sm text-[#3D3D3D] placeholder:text-[#6B6B6B]/40 focus:outline-none focus:border-[#C9A86C] transition-all"
+                  />
+                </div>
+                <button
+                  onClick={submitContactAndResults}
+                  disabled={!canSubmit || isSaving}
+                  className={`w-full font-sans font-semibold px-12 py-4 rounded-full transition-all mt-4 ${
+                    canSubmit && !isSaving
+                      ? "bg-[#C9A86C] text-white hover:bg-[#b8975b] soft-glow"
+                      : "bg-[#3D3D3D]/10 text-[#6B6B6B]/50 cursor-not-allowed"
+                  }`}
+                >
+                  {isSaving ? "Loading..." : "See My Results"}
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isComplete) {
+    const results = calculateResults(answers);
+    const styleInsights = getStyleInsights(answers);
+
+    return (
+      <div className="calm-gradient-radial min-h-screen text-[#3D3D3D] relative">
+        <AuroraBackground />
+        <FloatingParticles />
+
+        {/* Header */}
+        <header className="fixed top-0 left-0 right-0 z-50 py-4 px-6 bg-[#FFF8F0]/80 backdrop-blur-sm">
+          <div className="max-w-7xl mx-auto flex items-center justify-between">
+            <span className="font-script text-2xl md:text-3xl text-[#3D3D3D]">
+              Authentically You
+            </span>
+            <nav className="flex items-center gap-3 md:gap-5">
+              <a
+                href="https://www.skool.com/authenticallyou/about"
+                className="font-sans text-xs md:text-sm text-[#6B6B6B] hover:text-[#C9A86C] transition-colors"
+              >
+                Join the Community
+              </a>
+              <a
+                href="/apply"
+                className="font-sans text-xs md:text-sm font-semibold bg-[#C9A86C] text-white px-4 py-2 rounded-full hover:bg-[#b8975b] transition-all"
+              >
+                Apply to Work with Me
+              </a>
+            </nav>
+          </div>
+        </header>
+
+        <div className="px-6 py-24">
+          {/* Results Card */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="max-w-2xl mx-auto"
+          >
+            <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-8 md:p-12 soft-glow">
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-[#C9A86C] rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Check className="w-8 h-8 text-white" />
+                </div>
+                <span className="font-sans text-sm tracking-[0.2em] uppercase text-[#C9A86C] block mb-2">
+                  Your Results
+                </span>
+                <h1 className="font-serif text-3xl md:text-4xl mb-2 text-[#3D3D3D]">
+                  {results.zone}
+                </h1>
+                <p className="font-serif text-xl text-[#C9A86C] italic">
+                  {results.headline}
+                </p>
+              </div>
+
+              <div className="mb-8">
+                <p className="font-sans text-lg text-[#6B6B6B] leading-relaxed mb-6">
+                  {results.description}
+                </p>
+
+                <div className="bg-[#C9A86C]/10 rounded-2xl p-6 mb-6">
+                  <h3 className="font-serif text-lg text-[#3D3D3D] mb-3">What we noticed:</h3>
+                  <ul className="space-y-2">
+                    {results.patterns.map((pattern, i) => (
+                      <li key={i} className="font-sans text-[#6B6B6B] flex items-start gap-2">
+                        <span className="text-[#C9A86C]">•</span>
+                        {pattern}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                {styleInsights.length > 0 && (
+                  <div className="bg-[#C5B4E3]/10 rounded-2xl p-6 mb-6">
+                    <h3 className="font-serif text-lg text-[#3D3D3D] mb-3">Style signals:</h3>
+                    <ul className="space-y-2">
+                      {styleInsights.map((insight, i) => (
+                        <li key={i} className="font-sans text-[#6B6B6B] flex items-start gap-2">
+                          <span className="text-[#C5B4E3]">•</span>
+                          {insight}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                <div className="bg-[#B4D4E3]/10 rounded-2xl p-6">
+                  <h3 className="font-serif text-lg text-[#3D3D3D] mb-2">Where support helps most:</h3>
+                  <p className="font-sans text-[#6B6B6B]">{results.support}</p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Upsell Section */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="max-w-4xl mx-auto mt-16"
+          >
+            <div className="text-center mb-10">
+              <span className="font-sans text-sm tracking-[0.2em] uppercase text-[#C9A86C] block mb-3">
+                Your Next Step
+              </span>
+              <h2 className="font-serif text-2xl md:text-3xl text-[#3D3D3D] mb-3">
+                Continue Your Journey with Elfina
+              </h2>
+              <p className="font-sans text-[#6B6B6B] max-w-xl mx-auto">
+                Based on your results, here&apos;s the path that fits where you are right now.
+              </p>
+            </div>
+
+            {/* Recommended badge based on zone */}
+            {(() => {
+              const recommendedTier =
+                results.zone === "Starting Zone" ? "standard" :
+                results.zone === "Building Zone" ? "premium" :
+                results.zone === "Growing Zone" ? "vip" :
+                results.zone === "Confident Zone" ? "vip" :
+                "studio";
+
+              const tiers = [
+                {
+                  id: "standard",
+                  name: "Standard",
+                  price: "Free",
+                  period: "",
+                  description: "Join the community and start your journey",
+                  features: [
+                    "Access to community discussions",
+                    "Weekly group content & prompts",
+                    "Connect with like-minded creators",
+                    "Free resources & guides",
+                  ],
+                  cta: "Join Free Community",
+                  href: "https://www.skool.com/authenticallyou/about",
+                  color: "#6B6B6B",
+                  bgGradient: "from-[#6B6B6B]/5 to-[#6B6B6B]/0",
+                  borderColor: "border-[#6B6B6B]/20",
+                },
+                {
+                  id: "premium",
+                  name: "Premium",
+                  price: "$28",
+                  period: "/mo",
+                  description: "Guided support to build your confidence",
+                  features: [
+                    "Everything in Standard",
+                    "Monthly group coaching calls",
+                    "Camera confidence workshops",
+                    "Content templates & frameworks",
+                    "Accountability partnerships",
+                  ],
+                  cta: "Join Premium",
+                  href: "https://www.skool.com/authenticallyou/about",
+                  color: "#C9A86C",
+                  bgGradient: "from-[#C9A86C]/10 to-[#C9A86C]/0",
+                  borderColor: "border-[#C9A86C]/30",
+                },
+                {
+                  id: "vip",
+                  name: "VIP",
+                  price: "$98",
+                  period: "/mo",
+                  description: "Deep transformation with personal attention",
+                  features: [
+                    "Everything in Premium",
+                    "Weekly group coaching",
+                    "Direct feedback on your content",
+                    "Personalized confidence roadmap",
+                    "Priority support & mentorship",
+                    "Exclusive masterclasses",
+                  ],
+                  cta: "Join VIP",
+                  href: "https://www.skool.com/authenticallyou/about",
+                  color: "#C5B4E3",
+                  bgGradient: "from-[#C5B4E3]/10 to-[#C5B4E3]/0",
+                  borderColor: "border-[#C5B4E3]/30",
+                },
+                {
+                  id: "studio",
+                  name: "In the Studio",
+                  price: "$898",
+                  period: "/mo",
+                  description: "1-on-1 with Elfina — for serious creators ready to lead",
+                  features: [
+                    "Everything in VIP",
+                    "Weekly 1-on-1 sessions with Elfina",
+                    "Custom content strategy",
+                    "Brand & presence development",
+                    "Direct access via DM",
+                    "Done-with-you video coaching",
+                    "Business growth integration",
+                  ],
+                  cta: "Apply Now",
+                  href: "/apply",
+                  color: "#C9A86C",
+                  bgGradient: "from-[#C9A86C]/15 to-[#C5B4E3]/10",
+                  borderColor: "border-[#C9A86C]/40",
+                },
+              ];
+
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {tiers.map((tier) => {
+                    const isRecommended = tier.id === recommendedTier;
+                    return (
+                      <motion.div
+                        key={tier.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6 + tiers.indexOf(tier) * 0.1 }}
+                        className={`relative flex flex-col bg-gradient-to-br ${tier.bgGradient} backdrop-blur-sm rounded-2xl p-6 border ${
+                          isRecommended
+                            ? 'border-[#C9A86C] ring-2 ring-[#C9A86C]/30'
+                            : tier.borderColor
+                        }`}
+                      >
+                        {isRecommended && (
+                          <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                            <span className="bg-[#C9A86C] text-white text-xs font-sans font-semibold px-4 py-1 rounded-full flex items-center gap-1">
+                              <Sparkles className="w-3 h-3" />
+                              Recommended for You
+                            </span>
+                          </div>
+                        )}
+
+                        <div className="mb-4">
+                          <h3 className="font-serif text-xl text-[#3D3D3D]">{tier.name}</h3>
+                          <div className="flex items-baseline gap-1 mt-1">
+                            <span className="font-serif text-3xl font-bold" style={{ color: tier.color }}>
+                              {tier.price}
+                            </span>
+                            {tier.period && (
+                              <span className="font-sans text-sm text-[#6B6B6B]">{tier.period}</span>
+                            )}
+                          </div>
+                          <p className="font-sans text-sm text-[#6B6B6B] mt-2">{tier.description}</p>
+                        </div>
+
+                        <ul className="space-y-2 mb-6 flex-grow">
+                          {tier.features.map((feature, i) => (
+                            <li key={i} className="font-sans text-sm text-[#6B6B6B] flex items-start gap-2">
+                              <Check className="w-4 h-4 flex-shrink-0 mt-0.5" style={{ color: tier.color }} />
+                              {feature}
+                            </li>
+                          ))}
+                        </ul>
+
+                        <a
+                          href={tier.href}
+                          className={`block text-center font-sans font-semibold py-3 px-6 rounded-full transition-all mt-auto ${
+                            isRecommended
+                              ? 'bg-[#C9A86C] text-white hover:bg-[#b8975b] soft-glow'
+                              : tier.id === 'studio'
+                              ? 'bg-[#3D3D3D] text-white hover:bg-[#2D2D2D]'
+                              : 'border-2 text-[#3D3D3D] hover:bg-white/50'
+                          }`}
+                          style={!isRecommended && tier.id !== 'studio' ? { borderColor: tier.color } : undefined}
+                        >
+                          {tier.cta}
+                        </a>
+                      </motion.div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+
+            {/* Retake Quiz */}
+            <div className="text-center mt-10">
+              <button
+                onClick={() => {
+                  setAnswers({});
+                  setCurrentQuestion(0);
+                  setIsComplete(false);
+                  setShowIntro(true);
+                  setShowContactForm(false);
+                  setUserName("");
+                  setUserEmail("");
+                  setUserPhone("");
+                }}
+                className="font-sans text-sm text-[#6B6B6B] hover:text-[#C9A86C] underline underline-offset-4 transition-colors"
+              >
+                Retake Quiz
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="calm-gradient-radial min-h-screen text-[#3D3D3D] relative">
-      {/* Aurora Background & Floating Elements */}
       <AuroraBackground />
       <FloatingParticles />
 
-      <Navbar />
-
-      {/* Hero Section */}
-      <section className="min-h-screen relative flex items-center justify-center pt-20">
-        <div className="relative z-10 max-w-6xl mx-auto px-6 py-16 grid lg:grid-cols-2 gap-12 items-center">
-          <div className="text-center lg:text-left">
-            <p className="font-sans text-sm tracking-[0.3em] uppercase text-[#C9A86C] mb-4">
-              be seen. be heard. be you.
-            </p>
-            <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl leading-tight mb-6 text-[#3D3D3D]">
-              GROW your <span className="text-[#C9A86C]">AUDIENCE</span>.
-            </h1>
-            <p className="font-serif text-2xl md:text-3xl text-[#3D3D3D] mb-6 leading-relaxed">
-              LEARN to LOVE being on CAMERA while doing it.
-            </p>
-            <p className="font-sans text-lg text-[#6B6B6B] mb-8 leading-relaxed max-w-xl">
-              Join our mission to help 1 million people do the same.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <a
-                href="https://www.skool.com/authenticallyou/about"
-                className="inline-block font-sans font-semibold bg-[#C9A86C] text-white px-10 py-4 rounded-full hover:bg-[#b8975b] transition-all soft-glow text-center"
-              >
-                Join Now
-              </a>
-              <a
-                href="#about"
-                className="inline-block font-sans font-semibold border-2 border-[#C9A86C] text-[#C9A86C] px-10 py-4 rounded-full hover:bg-[#C9A86C]/10 transition-all text-center"
-              >
-                Learn More
-              </a>
-            </div>
-          </div>
-          <div className="relative flex justify-center lg:justify-end">
-            <div className="relative w-[300px] md:w-[400px] aspect-[3/4] rounded-3xl overflow-hidden soft-glow">
-              <Image
-                src="/elfina-hero.png"
-                alt="Elfina Luk"
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Mission Statement */}
-      <section className="py-20 px-6 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="font-sans text-lg md:text-xl text-[#6B6B6B] leading-relaxed mb-8">
-            We help creators, coaches, and professionals show up confidently on camera so you can share your message clearly, grow your audience, and stay rooted in what makes you authentically you.
-          </p>
-          <p className="font-script text-3xl md:text-4xl text-[#C9A86C]">
-            Be seen. Be heard. Be authentically you.
-          </p>
-          <p className="font-serif text-xl text-[#3D3D3D] mt-2 italic">
-            On camera and in life.
-          </p>
-        </div>
-      </section>
-
-      {/* Where It All Happens */}
-      <section id="community" className="py-24 px-6 relative z-10">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="font-sans text-sm tracking-[0.3em] uppercase text-[#C9A86C] block mb-4">Where it all happens</span>
-            <h2 className="font-serif text-4xl lg:text-5xl text-[#3D3D3D] mb-6">together</h2>
-            <p className="font-sans text-lg text-[#6B6B6B] max-w-2xl mx-auto leading-relaxed">
-              Inside y/our community is where this journey begins...a space to pause, breathe and remember that confidence grows with connection.
-            </p>
-            <p className="font-sans text-lg text-[#6B6B6B] max-w-2xl mx-auto mt-4 leading-relaxed">
-              Whether you&apos;re just finding your voice or ready to share it with the world, there&apos;s a place for you here.
-            </p>
-            <p className="font-sans text-[#C9A86C] mt-6">
-              ✨ Explore our free resources, group programs, and deeper collaborations — all rooted in authenticity and creative freedom.
-            </p>
-          </div>
-
-          {/* Community Features Grid */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 max-w-4xl mx-auto">
-            {communityFeatures.map((feature, index) => (
-              <div
-                key={index}
-                className="p-4 bg-white/50 backdrop-blur-sm rounded-2xl text-center soft-glow hover:bg-white/70 transition-all"
-              >
-                <p className="font-sans text-sm text-[#3D3D3D]">{feature}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Offers Section */}
-      <section id="offers" className="py-24 px-6 relative z-10">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="font-sans text-sm tracking-[0.3em] uppercase text-[#C9A86C] block mb-4">Offers</span>
-            <h2 className="font-serif text-4xl lg:text-5xl text-[#3D3D3D] mb-4">How we can help</h2>
-            <p className="font-sans text-lg text-[#6B6B6B]">
-              From free tools to deep collaboration ~ we&apos;ve got something for every level of support.
-            </p>
-            <p className="font-serif text-xl text-[#C9A86C] mt-2 italic">
-              Where are you in your journey right now?
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {offers.map((offer, index) => (
-              <div
-                key={index}
-                className="p-8 bg-white/50 backdrop-blur-sm rounded-2xl soft-glow hover:bg-white/70 transition-all group"
-              >
-                <span className="text-4xl mb-4 block">{offer.icon}</span>
-                <h3 className="font-serif text-xl mb-3 text-[#3D3D3D] group-hover:text-[#C9A86C] transition-colors">
-                  {offer.title}
-                </h3>
-                <p className="font-sans text-[#6B6B6B] leading-relaxed">
-                  {offer.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* About Elfina Section */}
-      <section id="about" className="py-24 px-6 relative z-10">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="relative">
-              <div className="relative w-full max-w-md mx-auto aspect-[4/5] rounded-3xl overflow-hidden soft-glow">
-                <Image
-                  src="/elfina-profile.jpg"
-                  alt="Elfina Luk"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div className="mt-6 flex justify-center">
-                <Image
-                  src="/accreditations.png"
-                  alt="Accreditations"
-                  width={300}
-                  height={60}
-                  className="opacity-80"
-                />
-              </div>
-            </div>
-            <div>
-              <span className="font-sans text-sm tracking-[0.3em] uppercase text-[#C9A86C] block mb-4">About Elfina</span>
-              <h2 className="font-serif text-3xl lg:text-4xl text-[#3D3D3D] mb-6">
-                from self doubt to confident
-              </h2>
-              <div className="space-y-4 font-sans text-[#6B6B6B] leading-relaxed">
-                <p>
-                  Hi 👋 I&apos;m Elfina Luk, a professional actor and producer with over 20 years of experience in the entertainment industry. You might recognize me from &quot;The Good Doctor&quot; with Freddie Highmore or the Hollywood Blockbuster &quot;Skyscraper&quot; with Dwayne &quot;The Rock&quot; Johnson.
-                </p>
-                <p>
-                  I am also a mentor → helping artists, creators, coaches, and professionals show up with confidence and clarity, on camera and in life.
-                </p>
-                <p>
-                  I know what it&apos;s like to feel blocked by perfectionism, self-doubt, or fear of being seen. That used to be me, until I learned how to stop performing and start connecting. I realigned with my message, let go of overthinking, and finally showed up as myself.
-                </p>
-                <p className="font-serif text-lg text-[#C9A86C] italic">
-                  Now I help others do the same.
-                </p>
-                <p>
-                  With a background in both professional performance and subconscious healing, I offer a unique blend of mindset, voice, presence, and practical tools to support your entire journey — from message clarity, scripting &amp; delivery, to filming, lighting, editing and publishing with a strong automated backend system to support it.
-                </p>
-              </div>
-
-              <div className="mt-8 p-6 bg-[#C9A86C]/10 rounded-2xl">
-                <p className="font-sans text-[#3D3D3D] mb-4">If you&apos;re ready to:</p>
-                <ul className="space-y-2 font-sans text-[#6B6B6B]">
-                  <li>✔️ Overcome visibility blocks</li>
-                  <li>✔️ Deliver your message with effortless confidence</li>
-                  <li>✔️ Create content with ease and authenticity</li>
-                </ul>
-                <p className="font-serif text-lg text-[#C9A86C] mt-6 italic">
-                  Let&apos;s uncover the version of you that&apos;s already ready and give your message the voice and presence it deserves.
-                </p>
-                <p className="font-sans text-[#6B6B6B] mt-4">
-                  With love &amp; intention,<br />
-                  <span className="font-script text-2xl text-[#C9A86C]">~ Elfina</span> 💖
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Testimonials Section */}
-      <section className="py-24 px-6 relative z-10">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <span className="font-sans text-sm tracking-[0.3em] uppercase text-[#C9A86C] block mb-4">real voices. real transformations.</span>
-            <h2 className="font-serif text-4xl lg:text-5xl text-[#3D3D3D]">from our members &amp; clients</h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {testimonials.map((testimonial, index) => (
-              <div
-                key={index}
-                className="p-6 bg-white/50 backdrop-blur-sm rounded-2xl soft-glow"
-              >
-                <p className="font-sans text-[#6B6B6B] leading-relaxed mb-6 italic">
-                  &quot;{testimonial.quote}&quot;
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#C9A86C]/50 to-[#C5B4E3]/50 flex items-center justify-center">
-                    <span className="font-serif text-sm text-white font-semibold">
-                      {testimonial.name.split(' ').map(n => n[0]).join('')}
-                    </span>
-                  </div>
-                  <div>
-                    <p className="font-sans font-semibold text-[#3D3D3D]">{testimonial.name}</p>
-                    <p className="font-sans text-xs text-[#6B6B6B]">{testimonial.title}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Podcast Section */}
-      <section className="py-24 px-6 relative z-10">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-white/50 backdrop-blur-sm rounded-3xl p-8 md:p-12 soft-glow">
-            <div className="grid md:grid-cols-2 gap-8 items-center">
-              <div className="relative aspect-square max-w-[300px] mx-auto rounded-2xl overflow-hidden">
-                <Image
-                  src="/podcast-cover.png"
-                  alt="Authentically You Podcast"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div>
-                <span className="font-sans text-sm tracking-[0.3em] uppercase text-[#C9A86C] block mb-4">Podcast</span>
-                <h2 className="font-serif text-3xl text-[#3D3D3D] mb-4">for those ready to go deeper</h2>
-                <p className="font-sans text-[#6B6B6B] leading-relaxed mb-4">
-                  These conversations go beneath the surface of what we explore in our calls, into the real, inner work behind camera confidence, creative flow, and self-trust.
-                </p>
-                <p className="font-sans text-[#6B6B6B] leading-relaxed mb-6">
-                  Each episode is an invitation to slow down, reflect, and reconnect with the part of you that wants to be seen — not for performance, but for presence.
-                </p>
-                <a
-                  href="https://www.youtube.com/@authentically_you"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-block font-sans font-semibold bg-[#C9A86C] text-white px-8 py-3 rounded-full hover:bg-[#b8975b] transition-all"
-                >
-                  Listen on YouTube
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Join CTA Section */}
-      <section className="py-24 px-6 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-br from-[#C9A86C]/20 to-[#C5B4E3]/20 backdrop-blur-sm rounded-3xl p-12 md:p-16 soft-glow">
-            <p className="font-sans text-sm tracking-[0.3em] uppercase text-[#C9A86C] mb-2">Join</p>
-            <p className="font-serif text-5xl md:text-6xl text-[#C9A86C] mb-4">100+</p>
-            <p className="font-serif text-2xl text-[#3D3D3D] mb-6">Creators</p>
-            <p className="font-sans text-lg text-[#6B6B6B] mb-8 max-w-xl mx-auto">
-              Stay up to date on everything happening inside Authentically You. Join the community ~ it&apos;s where all the new resources, updates, and confidence tools are shared first.
-            </p>
+      {/* Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 py-4 px-6 bg-[#FFF8F0]/80 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <span className="font-script text-2xl md:text-3xl text-[#3D3D3D]">
+            Authentically You
+          </span>
+          <nav className="flex items-center gap-3 md:gap-5">
+            <span className="font-sans text-xs md:text-sm text-[#6B6B6B]">
+              {currentQuestion + 1} of {totalQuestions}
+            </span>
             <a
               href="https://www.skool.com/authenticallyou/about"
-              className="inline-block font-sans font-semibold bg-[#C9A86C] text-white px-12 py-4 rounded-full hover:bg-[#b8975b] transition-all text-lg soft-glow"
+              className="hidden md:inline font-sans text-xs md:text-sm text-[#6B6B6B] hover:text-[#C9A86C] transition-colors"
             >
-              Join Now
+              Join the Community
             </a>
+            <a
+              href="/apply"
+              className="font-sans text-xs md:text-sm font-semibold bg-[#C9A86C] text-white px-4 py-2 rounded-full hover:bg-[#b8975b] transition-all"
+            >
+              Apply to Work with Me
+            </a>
+          </nav>
+        </div>
+      </header>
+
+      {/* Progress bar */}
+      <div className="fixed top-20 left-0 right-0 z-40 px-6">
+        <div className="max-w-2xl mx-auto">
+          <div className="h-1 bg-[#3D3D3D]/10 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full bg-[#C9A86C]"
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              transition={{ duration: 0.3 }}
+            />
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Take the Quiz CTA */}
-      <section className="py-16 px-6 relative z-10">
-        <div className="max-w-4xl mx-auto text-center">
-          <p className="font-sans text-[#6B6B6B] mb-4">Not sure where to start?</p>
-          <Link
-            href="/quiz"
-            className="inline-block font-sans font-semibold border-2 border-[#C9A86C] text-[#C9A86C] px-10 py-4 rounded-full hover:bg-[#C9A86C]/10 transition-all"
+      <div className="min-h-screen flex items-center justify-center px-6 pt-32 pb-20">
+        <div className="max-w-2xl mx-auto w-full">
+          {/* Section header */}
+          <motion.div
+            key={`section-${currentSectionIndex}`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center mb-6"
           >
-            Take the Camera Confidence Quiz
-          </Link>
-        </div>
-      </section>
+            <span className="font-sans text-sm tracking-[0.2em] uppercase text-[#C9A86C]">
+              {currentSection.title}
+            </span>
+            <p className="font-sans text-xs text-[#6B6B6B] mt-1">{currentSection.description}</p>
+          </motion.div>
 
-      {/* Footer */}
-      <footer className="py-16 px-6 border-t border-[#3D3D3D]/10 relative z-10">
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center gap-8">
-            <div className="flex items-center gap-4">
-              <Image
-                src="/ay-logo.png"
-                alt="Authentically You"
-                width={40}
-                height={40}
-              />
-              <span className="font-script text-2xl text-[#3D3D3D]">Authentically You</span>
-            </div>
-            <div className="flex gap-6 font-sans text-sm text-[#6B6B6B]">
-              <a href="https://www.instagram.com/authentically__you__" target="_blank" rel="noopener noreferrer" className="hover:text-[#C9A86C] transition-colors">Instagram</a>
-              <a href="https://www.youtube.com/@authentically_you" target="_blank" rel="noopener noreferrer" className="hover:text-[#C9A86C] transition-colors">YouTube</a>
-              <a href="https://www.skool.com/authenticallyou/about" target="_blank" rel="noopener noreferrer" className="hover:text-[#C9A86C] transition-colors">Community</a>
-              <Link href="/quiz" className="hover:text-[#C9A86C] transition-colors">Quiz</Link>
-            </div>
-          </div>
-          <div className="mt-8 pt-8 border-t border-[#3D3D3D]/10 text-center">
-            <p className="font-sans text-xs text-[#6B6B6B]/50">
-              &copy; 2025 Authentically You fka Healing the Artist Within ~ a subsidiary of Moment to Moment Pictures Inc.
-            </p>
-            <p className="font-sans text-xs text-[#6B6B6B]/50 mt-1">
-              All rights reserved
-            </p>
-          </div>
+          {/* Question */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={question.id}
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.3 }}
+              className="bg-white/50 backdrop-blur-sm rounded-3xl p-8 md:p-10 soft-glow"
+            >
+              <h2 className="font-serif text-xl md:text-2xl text-[#3D3D3D] mb-2">
+                {question.question}
+              </h2>
+              <p className="font-sans text-sm text-[#6B6B6B] mb-6">
+                {question.multiSelect ? "Select all that apply" : "Select one option"}
+              </p>
+
+              <div className="space-y-3">
+                {question.options.map((option, index) => {
+                  const isSelected = (answers[question.id] || []).includes(option);
+                  return (
+                    <motion.button
+                      key={index}
+                      onClick={() => handleSelectOption(option)}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
+                      className={`w-full text-left p-4 rounded-2xl border-2 transition-all font-sans text-sm ${
+                        isSelected
+                          ? "bg-[#C9A86C]/10 border-[#C9A86C] text-[#3D3D3D]"
+                          : "bg-white/50 border-[#3D3D3D]/10 text-[#6B6B6B] hover:border-[#C9A86C]/50 hover:bg-white/70"
+                      }`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div
+                          className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-all ${
+                            isSelected
+                              ? "bg-[#C9A86C] border-[#C9A86C]"
+                              : "border-[#3D3D3D]/30"
+                          }`}
+                        >
+                          {isSelected && <Check className="w-3 h-3 text-white" />}
+                        </div>
+                        <span className={isSelected ? "font-medium" : ""}>{option}</span>
+                      </div>
+                    </motion.button>
+                  );
+                })}
+              </div>
+
+              {/* Navigation */}
+              <div className="flex items-center justify-between mt-8 pt-6 border-t border-[#3D3D3D]/10">
+                <button
+                  onClick={handleBack}
+                  disabled={currentQuestion === 0}
+                  className={`flex items-center gap-2 font-sans text-sm transition-all ${
+                    currentQuestion === 0
+                      ? "text-[#6B6B6B]/30 cursor-not-allowed"
+                      : "text-[#6B6B6B] hover:text-[#3D3D3D]"
+                  }`}
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                  Back
+                </button>
+
+                {question.multiSelect && (
+                  <button
+                    onClick={handleNext}
+                    disabled={!canProceed}
+                    className={`flex items-center gap-2 font-sans font-semibold px-6 py-3 rounded-full transition-all ${
+                      canProceed
+                        ? "bg-[#C9A86C] text-white hover:bg-[#b8975b]"
+                        : "bg-[#3D3D3D]/10 text-[#6B6B6B]/50 cursor-not-allowed"
+                    }`}
+                  >
+                    {currentQuestion === totalQuestions - 1 ? "See Results" : "Next"}
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          </AnimatePresence>
         </div>
-      </footer>
+      </div>
     </div>
   );
 }

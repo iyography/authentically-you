@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
     // Only allow specific email addresses with admin123 password
     const allowedEmails = ['davidiya3@gmail.com', 'authenticallyou.ca@gmail.com'];
     
-    if (allowedEmails.includes(username) && password === 'admin123') {
+    if (allowedEmails.includes(username) && password === adminPassword) {
       // Create a simple session token
       const sessionToken = Buffer.from(`${username}:${Date.now()}`).toString('base64');
       

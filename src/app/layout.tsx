@@ -31,8 +31,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Authentically You | Be Confident on Camera",
-  description: "Free yourself from self-doubt, perfectionism and judgment. Film videos that connect. Grow your audience. Hit that record button with confidence!",
+  title: "Authentically You | Camera Confidence Quiz",
+  description: "Discover where you are on your camera confidence journey. Get clarity on your patterns, friction points, and where support helps most.",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -42,22 +42,22 @@ export const metadata: Metadata = {
     apple: "/favicon.png",
   },
   openGraph: {
-    title: "Authentically You | Be Confident on Camera",
-    description: "Free yourself from self-doubt, perfectionism and judgment. Film videos that connect. Grow your audience. Hit that record button with confidence!",
+    title: "Authentically You | Camera Confidence Quiz",
+    description: "Discover where you are on your camera confidence journey. Get clarity on your patterns, friction points, and where support helps most.",
     images: [
       {
         url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Authentically You - Be Confident on Camera",
+        alt: "Authentically You - Camera Confidence Quiz",
       },
     ],
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Authentically You | Be Confident on Camera",
-    description: "Free yourself from self-doubt, perfectionism and judgment. Film videos that connect. Grow your audience. Hit that record button with confidence!",
+    title: "Authentically You | Camera Confidence Quiz",
+    description: "Discover where you are on your camera confidence journey. Get clarity on your patterns, friction points, and where support helps most.",
     images: ["/og-image.png"],
   },
 };

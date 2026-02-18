@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { Search, Copy, Check, Pencil, X, Save } from 'lucide-react';
 
 interface Post {
   id: number;
@@ -19,10 +20,35 @@ interface EditForm {
 }
 
 export default function ContentLibrary() {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [activeVersions, setActiveVersions] = useState<Record<number, 'short' | 'medium' | 'long'>>({});
   const [posts, setPosts] = useState<Post[]>([]);
   const [currentFilter, setCurrentFilter] = useState('all');
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [editForm, setEditForm] = useState<EditForm>({ title: '', short: '', medium: '', long: '' });
+  const [usedPosts, setUsedPosts] = useState<Set<number>>(new Set());
+
+  // Load used posts from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('aty-used-posts');
+      if (saved) setUsedPosts(new Set(JSON.parse(saved)));
+    } catch {}
+  }, []);
+
+  const toggleUsed = (postId: number) => {
+    setUsedPosts(prev => {
+      const next = new Set(prev);
+      if (next.has(postId)) {
+        next.delete(postId);
+      } else {
+        next.add(postId);
+      }
+      localStorage.setItem('aty-used-posts', JSON.stringify([...next]));
+      return next;
+    });
+  };
 
   useEffect(() => {
     const initialPosts = [
@@ -449,9 +475,18 @@ export default function ContentLibrary() {
     setPosts(initialPosts);
   }, []);
 
-  const filteredPosts = currentFilter === 'all' 
-    ? posts 
-    : posts.filter(post => post.category === currentFilter);
+  const filteredPosts = posts
+    .filter(post => {
+      const isUsed = usedPosts.has(post.id);
+      // "Posted" tab shows only used posts; all other tabs hide used posts
+      if (currentFilter === 'posted') return isUsed;
+      if (isUsed) return false;
+      const matchesFilter = currentFilter === 'all' || post.category === currentFilter;
+      const matchesSearch = !searchQuery ||
+        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.short.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchesFilter && matchesSearch;
+    });
 
   const handleEdit = (post: Post) => {
     setEditingPost(post);
@@ -478,257 +513,247 @@ export default function ContentLibrary() {
     setEditForm({ title: '', short: '', medium: '', long: '' });
   };
 
-  const copyToClipboard = (text: string, title: string) => {
+  const copyToClipboard = (text: string, title: string, copyKey: string) => {
     navigator.clipboard.writeText(`${title}\n\n${text}`).then(() => {
-      // Show toast notification
-      const toast = document.getElementById('toast');
-      if (toast) {
-        toast.classList.remove('hidden');
-        setTimeout(() => toast.classList.add('hidden'), 2000);
-      }
+      setCopiedId(copyKey);
+      setTimeout(() => setCopiedId(null), 2000);
     });
   };
 
   const getCategoryColor = (category: string) => {
     const colors: { [key: string]: string } = {
-      'confidence': 'bg-yellow-400/20 text-yellow-300',
-      'authenticity': 'bg-pink-400/20 text-pink-300',
-      'mindset': 'bg-purple-400/20 text-purple-300',
-      'business': 'bg-blue-400/20 text-blue-300',
-      'personal': 'bg-green-400/20 text-green-300'
+      'confidence': 'bg-[#C9A86C]/20 text-[#C9A86C]',
+      'authenticity': 'bg-[#E3B4D4]/30 text-[#C47BA0]',
+      'mindset': 'bg-[#C5B4E3]/30 text-[#8B6BB5]',
+      'business': 'bg-[#B4D4E3]/30 text-[#5A9AB5]',
+      'personal': 'bg-[#B5D4A8]/30 text-[#6B9A5A]'
     };
-    return colors[category] || 'bg-gray-400/20 text-gray-300';
+    return colors[category] || 'bg-gray-200 text-gray-600';
   };
 
+  const getCategoryLabel = (category: string) => {
+    const labels: { [key: string]: string } = {
+      'confidence': 'Camera Confidence',
+      'authenticity': 'Authenticity',
+      'mindset': 'Mindset',
+      'business': 'Business Growth',
+      'personal': 'Personal Stories'
+    };
+    return labels[category] || category;
+  };
+
+  const getActiveVersion = (postId: number): 'short' | 'medium' | 'long' => {
+    return activeVersions[postId] || 'short';
+  };
+
+  const categories = [
+    { key: 'all', label: 'All' },
+    { key: 'confidence', label: 'Camera Confidence' },
+    { key: 'authenticity', label: 'Authenticity' },
+    { key: 'mindset', label: 'Mindset' },
+    { key: 'business', label: 'Business Growth' },
+    { key: 'personal', label: 'Personal Stories' },
+    { key: 'posted', label: 'Posted' },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#8B4A6B] via-[#9A5B7D] to-[#A86B8A] text-white p-6">
-      {/* Toast Notification */}
-      <div id="toast" className="fixed bottom-6 right-6 bg-green-500 px-6 py-3 rounded-xl shadow-xl hidden z-50">
-        ✓ Copied!
+    <div>
+      {/* Copied Toast */}
+      {copiedId && (
+        <div className="fixed bottom-6 right-6 bg-[#C9A86C] text-white px-5 py-3 rounded-xl shadow-lg z-50 flex items-center gap-2 font-sans text-sm">
+          <Check className="w-4 h-4" />
+          Copied to clipboard!
+        </div>
+      )}
+
+      {/* Header */}
+      <div className="mb-6">
+        <h2 className="font-serif text-2xl text-[#3D3D3D] mb-1">Content Library</h2>
+        <p className="font-sans text-sm text-[#6B6B6B]">{posts.length} posts across {categories.length - 1} categories</p>
       </div>
-      
-      <div className="max-w-7xl mx-auto">
-        <h1 className="text-4xl font-bold text-center mb-2 bg-gradient-to-r from-[#F5F5DC] to-white bg-clip-text text-transparent">
-          Authentically You Content Library
-        </h1>
-        <p className="text-center text-[#F5F5DC]/80 mb-8">100 posts | 20 per category | Camera Confidence & Authentic Presence</p>
-        
-        {/* Search */}
-        <input 
-          type="text" 
-          placeholder="Search posts..." 
-          className="w-full bg-white/10 backdrop-blur-lg rounded-xl px-4 py-3 mb-4 text-white placeholder-gray-300 border border-white/20 focus:outline-none focus:border-[#F5F5DC]"
+
+      {/* Search */}
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B6B6B]" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search posts..."
+          className="w-full bg-white/80 border border-[#3D3D3D]/10 rounded-xl pl-10 pr-4 py-3 font-sans text-sm text-[#3D3D3D] placeholder-[#6B6B6B]/50 focus:outline-none focus:border-[#C9A86C] transition-colors"
         />
-        
-        {/* Category Filter Buttons */}
-        <div className="flex flex-wrap gap-2 mb-6 justify-center">
-          <button 
-            onClick={() => setCurrentFilter('all')}
-            className={`px-4 py-2 rounded-lg transition-all ${currentFilter === 'all' ? 'bg-white/30' : 'bg-white/10 hover:bg-white/20'}`}
-          >
-            All ({posts.length})
-          </button>
-          <button 
-            onClick={() => setCurrentFilter('confidence')}
-            className={`px-4 py-2 rounded-lg transition-all ${currentFilter === 'confidence' ? 'bg-white/30' : 'bg-[#F5F5DC]/20 text-[#F5F5DC] hover:bg-[#F5F5DC]/30'}`}
-          >
-            Camera Confidence
-          </button>
-          <button 
-            onClick={() => setCurrentFilter('authenticity')}
-            className={`px-4 py-2 rounded-lg transition-all ${currentFilter === 'authenticity' ? 'bg-white/30' : 'bg-pink-500/20 text-pink-300 hover:bg-pink-500/30'}`}
-          >
-            Authenticity
-          </button>
-          <button 
-            onClick={() => setCurrentFilter('mindset')}
-            className={`px-4 py-2 rounded-lg transition-all ${currentFilter === 'mindset' ? 'bg-white/30' : 'bg-purple-500/20 text-purple-300 hover:bg-purple-500/30'}`}
-          >
-            Mindset
-          </button>
-          <button 
-            onClick={() => setCurrentFilter('business')}
-            className={`px-4 py-2 rounded-lg transition-all ${currentFilter === 'business' ? 'bg-white/30' : 'bg-blue-500/20 text-blue-300 hover:bg-blue-500/30'}`}
-          >
-            Business Growth
-          </button>
-          <button 
-            onClick={() => setCurrentFilter('personal')}
-            className={`px-4 py-2 rounded-lg transition-all ${currentFilter === 'personal' ? 'bg-white/30' : 'bg-yellow-500/20 text-yellow-300 hover:bg-yellow-500/30'}`}
-          >
-            Personal Stories
-          </button>
-        </div>
-        
-        <div className="text-gray-300 text-sm mb-4 text-center">
-          Showing {filteredPosts.length} posts
-        </div>
-
-        {/* Posts Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-          {filteredPosts.map((post) => (
-            <div key={post.id} className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/10">
-              {/* Post Header */}
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center gap-2">
-                  <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getCategoryColor(post.category)}`}>
-                    {post.category}
-                  </span>
-                  <span className="text-gray-400 text-sm">by Elfina Luk</span>
-                </div>
-                <button
-                  onClick={() => handleEdit(post)}
-                  className="text-gray-400 hover:text-white transition-colors"
-                >
-                  ✏️ Edit
-                </button>
-              </div>
-
-              {editingPost?.id === post.id ? (
-                /* Edit Form */
-                <div className="space-y-4">
-                  <input
-                    type="text"
-                    value={editForm.title}
-                    onChange={(e) => setEditForm({...editForm, title: e.target.value})}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-300"
-                    placeholder="Title"
-                  />
-                  
-                  <div className="space-y-3">
-                    <label className="text-sm text-gray-300">Short Version</label>
-                    <textarea
-                      value={editForm.short}
-                      onChange={(e) => setEditForm({...editForm, short: e.target.value})}
-                      className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-300 h-24 resize-none"
-                      placeholder="Short version..."
-                    />
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <label className="text-sm text-gray-300">Medium Version</label>
-                    <textarea
-                      value={editForm.medium}
-                      onChange={(e) => setEditForm({...editForm, medium: e.target.value})}
-                      className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-300 h-32 resize-none"
-                      placeholder="Medium version..."
-                    />
-                  </div>
-                  
-                  <div className="space-y-3">
-                    <label className="text-sm text-gray-300">Long Version</label>
-                    <textarea
-                      value={editForm.long}
-                      onChange={(e) => setEditForm({...editForm, long: e.target.value})}
-                      className="w-full bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white placeholder-gray-300 h-40 resize-none"
-                      placeholder="Long version..."
-                    />
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <button
-                      onClick={handleSave}
-                      className="bg-green-500 hover:bg-green-600 px-4 py-2 rounded-lg transition-colors"
-                    >
-                      Save
-                    </button>
-                    <button
-                      onClick={handleCancel}
-                      className="bg-gray-500 hover:bg-gray-600 px-4 py-2 rounded-lg transition-colors"
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                /* Display Mode */
-                <div>
-                  <h3 className="text-xl font-bold mb-4 text-white">{post.title}</h3>
-                  
-                  {/* Version Tabs */}
-                  <div className="mb-4">
-                    <div className="border-b border-white/20">
-                      <div className="flex space-x-4">
-                        {['short', 'medium', 'long'].map((version) => (
-                          <button
-                            key={version}
-                            className="py-2 px-1 text-sm font-medium border-b-2 border-transparent hover:border-white/50 focus:outline-none"
-                            onClick={(e) => {
-                              const tabContent = (e.target as HTMLElement).closest('.bg-white\\/10')?.querySelector('.tab-content');
-                              const versionContent = tabContent?.querySelector(`[data-version="${version}"]`);
-                              
-                              if (tabContent && versionContent) {
-                                // Hide all versions
-                                tabContent.querySelectorAll('[data-version]').forEach(el => el.classList.add('hidden'));
-                                // Show selected version
-                                versionContent.classList.remove('hidden');
-                              }
-                              
-                              // Update tab styles
-                              const tabContainer = (e.target as HTMLElement).closest('.flex');
-                              if (tabContainer) {
-                                tabContainer.querySelectorAll('button').forEach(btn => {
-                                  btn.classList.remove('border-white', 'text-white');
-                                  btn.classList.add('border-transparent', 'text-gray-300');
-                                });
-                                (e.target as HTMLElement).classList.remove('border-transparent', 'text-gray-300');
-                                (e.target as HTMLElement).classList.add('border-white', 'text-white');
-                              }
-                            }}
-                          >
-                            {version.charAt(0).toUpperCase() + version.slice(1)}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div className="tab-content mt-4">
-                      <div data-version="short" className="prose prose-gray text-gray-300 leading-relaxed whitespace-pre-wrap">
-                        {post.short}
-                      </div>
-                      <div data-version="medium" className="hidden prose prose-gray text-gray-300 leading-relaxed whitespace-pre-wrap">
-                        {post.medium}
-                      </div>
-                      <div data-version="long" className="hidden prose prose-gray text-gray-300 leading-relaxed whitespace-pre-wrap">
-                        {post.long}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Copy Buttons */}
-                  <div className="flex gap-2 flex-wrap">
-                    <button
-                      onClick={() => copyToClipboard(post.short, post.title)}
-                      className="bg-white/10 hover:bg-white/20 px-3 py-1 rounded-lg transition-colors text-sm"
-                    >
-                      Copy Short
-                    </button>
-                    <button
-                      onClick={() => copyToClipboard(post.medium, post.title)}
-                      className="bg-white/10 hover:bg-white/20 px-3 py-1 rounded-lg transition-colors text-sm"
-                    >
-                      Copy Medium
-                    </button>
-                    <button
-                      onClick={() => copyToClipboard(post.long, post.title)}
-                      className="bg-white/10 hover:bg-white/20 px-3 py-1 rounded-lg transition-colors text-sm"
-                    >
-                      Copy Long
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {filteredPosts.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-gray-500 text-lg mb-4">No posts found</div>
-            <p className="text-gray-400">Try adjusting your search terms or filters</p>
-          </div>
-        )}
       </div>
+
+      {/* Category Filters */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {categories.map(cat => (
+          <button
+            key={cat.key}
+            onClick={() => setCurrentFilter(cat.key)}
+            className={`px-4 py-2 rounded-xl font-sans text-sm transition-all ${
+              currentFilter === cat.key
+                ? 'bg-[#C9A86C] text-white shadow-sm'
+                : 'bg-white/80 text-[#6B6B6B] hover:bg-white hover:text-[#3D3D3D] border border-[#3D3D3D]/10'
+            }`}
+          >
+            {cat.label}
+            {cat.key === 'all' && ` (${posts.length - usedPosts.size})`}
+            {cat.key === 'posted' && ` (${usedPosts.size})`}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex items-center justify-between mb-4">
+        <p className="font-sans text-xs text-[#6B6B6B]">
+          Showing {filteredPosts.length} post{filteredPosts.length !== 1 ? 's' : ''}
+        </p>
+      </div>
+
+      {/* Posts Grid */}
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        {filteredPosts.map((post) => {
+          const isUsed = usedPosts.has(post.id);
+          return (
+          <div key={post.id} className={`rounded-2xl p-6 border soft-glow transition-all ${
+            isUsed
+              ? 'bg-[#F5F3EE] border-[#3D3D3D]/5 opacity-60'
+              : 'bg-white/80 border-[#3D3D3D]/10'
+          }`}>
+            {/* Post Header */}
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => toggleUsed(post.id)}
+                  className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all flex-shrink-0 ${
+                    isUsed
+                      ? 'bg-[#C9A86C] border-[#C9A86C]'
+                      : 'border-[#3D3D3D]/20 hover:border-[#C9A86C]'
+                  }`}
+                >
+                  {isUsed && <Check className="w-3 h-3 text-white" />}
+                </button>
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getCategoryColor(post.category)}`}>
+                  {getCategoryLabel(post.category)}
+                </span>
+              </div>
+              <button
+                onClick={() => handleEdit(post)}
+                className="flex items-center gap-1 text-[#6B6B6B] hover:text-[#C9A86C] transition-colors font-sans text-xs"
+              >
+                <Pencil className="w-3 h-3" />
+                Edit
+              </button>
+            </div>
+
+            {editingPost?.id === post.id ? (
+              /* Edit Form */
+              <div className="space-y-4">
+                <input
+                  type="text"
+                  value={editForm.title}
+                  onChange={(e) => setEditForm({...editForm, title: e.target.value})}
+                  className="w-full bg-[#FFF8F0] border border-[#3D3D3D]/10 rounded-lg px-3 py-2 text-[#3D3D3D] font-sans text-sm focus:outline-none focus:border-[#C9A86C]"
+                  placeholder="Title"
+                />
+                {(['short', 'medium', 'long'] as const).map(version => (
+                  <div key={version} className="space-y-1">
+                    <label className="text-xs font-sans text-[#6B6B6B] capitalize">{version} Version</label>
+                    <textarea
+                      value={editForm[version]}
+                      onChange={(e) => setEditForm({...editForm, [version]: e.target.value})}
+                      className={`w-full bg-[#FFF8F0] border border-[#3D3D3D]/10 rounded-lg px-3 py-2 text-[#3D3D3D] font-sans text-sm resize-none focus:outline-none focus:border-[#C9A86C] ${
+                        version === 'short' ? 'h-24' : version === 'medium' ? 'h-32' : 'h-40'
+                      }`}
+                      placeholder={`${version} version...`}
+                    />
+                  </div>
+                ))}
+                <div className="flex gap-2">
+                  <button
+                    onClick={handleSave}
+                    className="flex items-center gap-1 bg-[#C9A86C] text-white px-4 py-2 rounded-lg font-sans text-sm hover:bg-[#B89755] transition-colors"
+                  >
+                    <Save className="w-3 h-3" />
+                    Save
+                  </button>
+                  <button
+                    onClick={handleCancel}
+                    className="flex items-center gap-1 bg-[#3D3D3D]/10 text-[#6B6B6B] px-4 py-2 rounded-lg font-sans text-sm hover:bg-[#3D3D3D]/20 transition-colors"
+                  >
+                    <X className="w-3 h-3" />
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Display Mode */
+              <div>
+                <h3 className={`font-serif text-lg mb-4 ${isUsed ? 'line-through text-[#6B6B6B]' : 'text-[#3D3D3D]'}`}>{post.title}</h3>
+
+                {/* Version Tabs */}
+                <div className="mb-4">
+                  <div className="border-b border-[#3D3D3D]/10">
+                    <div className="flex space-x-4">
+                      {(['short', 'medium', 'long'] as const).map((version) => (
+                        <button
+                          key={version}
+                          onClick={() => setActiveVersions(prev => ({ ...prev, [post.id]: version }))}
+                          className={`py-2 px-1 text-xs font-sans font-medium border-b-2 transition-all ${
+                            getActiveVersion(post.id) === version
+                              ? 'border-[#C9A86C] text-[#C9A86C]'
+                              : 'border-transparent text-[#6B6B6B] hover:text-[#3D3D3D]'
+                          }`}
+                        >
+                          {version.charAt(0).toUpperCase() + version.slice(1)}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="mt-4 font-sans text-sm text-[#3D3D3D]/80 leading-relaxed whitespace-pre-wrap">
+                    {post[getActiveVersion(post.id)]}
+                  </div>
+                </div>
+
+                {/* Copy Buttons */}
+                <div className="flex gap-2 flex-wrap">
+                  {(['short', 'medium', 'long'] as const).map(version => {
+                    const copyKey = `${post.id}-${version}`;
+                    return (
+                      <button
+                        key={version}
+                        onClick={() => copyToClipboard(post[version], post.title, copyKey)}
+                        className={`flex items-center gap-1 px-3 py-1.5 rounded-lg font-sans text-xs transition-all ${
+                          copiedId === copyKey
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-[#3D3D3D]/5 text-[#6B6B6B] hover:bg-[#C9A86C]/10 hover:text-[#C9A86C]'
+                        }`}
+                      >
+                        {copiedId === copyKey ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
+                        Copy {version.charAt(0).toUpperCase() + version.slice(1)}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+          );
+        })}
+      </div>
+
+      {filteredPosts.length === 0 && (
+        <div className="text-center py-12">
+          <p className="font-sans text-[#6B6B6B] text-lg mb-2">
+            {currentFilter === 'posted' ? 'No posted content yet' : 'No posts found'}
+          </p>
+          <p className="font-sans text-[#6B6B6B]/60 text-sm">
+            {currentFilter === 'posted'
+              ? 'Check off posts as you use them and they\'ll appear here'
+              : 'Try adjusting your search or filters'}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
